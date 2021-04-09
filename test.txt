@@ -1,0 +1,8 @@
+0001	Minsk	Every	12:50	2:40	7
+0002	Baranovichi	Mon Sat	5:45	1:10	3
+0003	Luninez	Sun	00:00	5:00	6
+0004	Terespol	Every	1:00	5:00	5
+0005	Hotislav	Tue Fri	10:20	8:00	9
+0007	Moskva	Every	5:40	1:00	3
+0008	Ulan-Ude	Sat	8:00	3:40	11
+1533	Kiev	Every	20:00	8:00	18
