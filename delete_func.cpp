@@ -3,12 +3,13 @@
 */
 
 #include "delete_func.h"
+#include "train_func.h"
 #include <iostream>
 #include <cstring>
 
 
 // 
-void delete_train_by_number(Train* trains, int& count, char number[5]) 
+void delete_train_by_number(Train* &trains, int& count, char number[5]) 
 {
     int i = 0;
     while (i < count) {
@@ -17,10 +18,13 @@ void delete_train_by_number(Train* trains, int& count, char number[5])
                 for (int j = i; j < count - 1; j++) {
                     trains[j] = trains[j + 1];
                 }
+
+                sub_memory_train(trains, count);
                 count--;
                 break;
             }
             else {
+                sub_memory_train(trains, count);
                 count--;
                 break;
             }
@@ -31,7 +35,7 @@ void delete_train_by_number(Train* trains, int& count, char number[5])
 
 
 // 
-void delete_train_by_end_station(Train* trains, int& count, char end_station[256])
+void delete_train_by_end_station(Train* &trains, int& count, char end_station[256])
 {
     int i = 0;
     while (i < count) {
@@ -52,6 +56,7 @@ void delete_train_by_end_station(Train* trains, int& count, char end_station[256
                 trains[j] = trains[j + 1];
             }
             i--;
+            sub_memory_train(trains, count);
             count--;
         }
         i++;

@@ -3,7 +3,7 @@
 #include "train.h"
 
 
-int get_records_from_file(char[], Train*, int&);
+int get_records_from_file(char[], Train*&, int&);
 int put_records_in_file(char[], Train*, int);
 
 

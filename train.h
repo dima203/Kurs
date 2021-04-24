@@ -2,6 +2,7 @@
 #define TRAIN_H
 
 
+#pragma pack(push, 1)
 struct Train {
     char number[5];
     char end_station[256];
@@ -10,5 +11,6 @@ struct Train {
     char time_way[7];
     int stop_count;
 };
+#pragma pack (pop)
 
 #endif

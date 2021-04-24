@@ -15,9 +15,9 @@ int main()
     setlocale(0, "");
 
     int train_count = 0;  // Количество поездов на данный момент
-    Train* train_station = new Train[1000];  // Массив структур
+    Train* train_station = new Train[train_count];  // Массив структур
 
-    int is_file_not_open = 1;  // Флаг состояния открытия файла (изночально не открыт)
+    int is_file_not_open = 1;  // Флаг состояния открытия файла (изначально не открыт)
     char file_name[256];  // Строка с именем файла
     system("clear");
     while (is_file_not_open) {

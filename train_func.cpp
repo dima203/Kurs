@@ -9,6 +9,44 @@
 #include <cstring>
 
 
+//
+void add_memory_train(Train* &trains, int &count)
+{
+    Train* buffer_trains = new Train[count + 1];
+
+    for (int i = 0; i < count; i++) {
+        buffer_trains[i] = trains[i];
+    }
+
+    delete[] trains;
+    trains = new Train[count + 1];
+
+    for (int i = 0; i < count; i++) {
+        trains[i] = buffer_trains[i];
+    }
+    delete[] buffer_trains;
+}
+
+
+//
+void sub_memory_train(Train* &trains, int &count)
+{
+    Train* buffer_trains = new Train[count - 1];
+
+    for (int i = 0; i < count - 1; i++) {
+        buffer_trains[i] = trains[i];
+    }
+
+    delete[] trains;
+    trains = new Train[count - 1];
+
+    for (int i = 0; i < count - 1; i++) {
+        trains[i] = buffer_trains[i];
+    }
+    delete[] buffer_trains;
+}
+
+
 // Вывод всех поездов
 void print_train(Train* trains, int count)
 { 
@@ -40,10 +78,12 @@ void print_train(Train* trains, int count)
 
 
 // Добавление нового поезда
-void add_train(Train* trains, int& count)
+void add_train(Train* &trains, int& count)
 {
     bool is_false = true;
     std::cin.ignore();  // Игнорирование предыдущего символа
+
+    add_memory_train(trains, count);
 
     while (is_false) {  // Проверка на правильность ввода
         std::cout << "Номер поезда:" << std::endl;
