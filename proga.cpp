@@ -17,6 +17,9 @@ int main()
     int train_count = 0;  // Количество поездов на данный момент
     Train* train_station = new Train[train_count];  // Массив структур
 
+    int train_buffer_count = 0;  // Количество действий в буфере
+    TrainBuffer* trains_buffer = new TrainBuffer[10];  // Буфер для хранения последних действий
+
     int is_file_not_open = 1;  // Флаг состояния открытия файла (изначально не открыт)
     char file_name[256];  // Строка с именем файла
     system("clear");
@@ -40,15 +43,16 @@ int main()
                 break;
 
             case 2:  // Добавление нового поезда
-                add_train(train_station, train_count);
+                add_train(train_station, trains_buffer, train_count, train_buffer_count);
                 break;
 
             case 3:  // Удаление поезда по позиции
                 int delete_type;  // Переменная типа удаления
+                print_train(train_station, train_count);
                 print_delete_menu();
                 std::cout << "Введите тип удаления: ";
                 std::cin >> delete_type;
-                delete_train(train_station, train_count, delete_type);
+                delete_train(train_station, trains_buffer, train_count, train_buffer_count, delete_type);
                 break;
 
             case 4:  // Сортировка поездов
@@ -65,6 +69,10 @@ int main()
                 std::cout << "Выберите тип записи в файл: ";
                 std::cin >> in_file;
                 sort(train_station, train_count, sort_type, reverse, in_file);
+                break;
+
+            case 5:  // Отмена последнего действия
+                undo_action(train_station, trains_buffer, train_count, train_buffer_count);
                 break;
             
             case 0:  // Выход из программы

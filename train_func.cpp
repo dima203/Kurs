@@ -9,8 +9,8 @@
 #include <cstring>
 
 
-//
-void add_memory_train(Train* &trains, int &count)
+// Функция выделения дополнительной ячейки памяти
+void add_memory_train(Train* &trains, int& count)
 {
     Train* buffer_trains = new Train[count + 1];
 
@@ -28,8 +28,8 @@ void add_memory_train(Train* &trains, int &count)
 }
 
 
-//
-void sub_memory_train(Train* &trains, int &count)
+// Функция очищения ячейки памяти
+void sub_memory_train(Train* &trains, int& count)
 {
     Train* buffer_trains = new Train[count - 1];
 
@@ -44,6 +44,27 @@ void sub_memory_train(Train* &trains, int &count)
         trains[i] = buffer_trains[i];
     }
     delete[] buffer_trains;
+}
+
+
+// Функция сохраниения состояния в буфер
+void save_trains_in_buffer(Train* trains, TrainBuffer* trains_buffer, int count, int& buffer_count)
+{
+    if (buffer_count == 10) {
+        delete[] trains_buffer[0].trains;
+        for (int i = 0; i < buffer_count - 1; i++) {
+            trains_buffer[i] = trains_buffer[i + 1];
+        }
+        buffer_count = 9;
+    }
+
+    trains_buffer[buffer_count].count = count;
+    trains_buffer[buffer_count].trains = new Train[count];
+    for (int i = 0; i < count; i++) {
+        trains_buffer[buffer_count].trains[i] = trains[i];
+    }
+
+    buffer_count++;
 }
 
 
@@ -78,10 +99,12 @@ void print_train(Train* trains, int count)
 
 
 // Добавление нового поезда
-void add_train(Train* &trains, int& count)
+void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
     bool is_false = true;
     std::cin.ignore();  // Игнорирование предыдущего символа
+    
+    save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
 
     add_memory_train(trains, count);
 
@@ -113,10 +136,13 @@ void add_train(Train* &trains, int& count)
         int end_ch;
 
         for (int ch = 0; ch < strlen(trains[count].time_departure); ch++) {  // Запись часов записи
-            if (trains[count].time_departure[ch] != ':') {  // Сравнение с двоеточием
+            if (trains[count].time_departure[ch] != ':' && trains[count].time_departure[ch] != '.') {  // Сравнение с двоеточием
                 hours_str[ch] = trains[count].time_departure[ch];
             }
             else {  // Если равны, то записываем индекс
+                if (trains[count].time_departure[ch] == '.') {
+                    trains[count].time_departure[ch] = ':';
+                }
                 end_ch = ch + 1;
                 break;
             }
@@ -146,10 +172,13 @@ void add_train(Train* &trains, int& count)
         int end_ch;
 
         for (int ch = 0; ch < strlen(trains[count].time_way); ch++) {  // Запись часов записи
-            if (trains[count].time_way[ch] != ':') {  // Сравнение с двоеточием
+            if (trains[count].time_way[ch] != ':' && trains[count].time_way[ch] != '.') {  // Сравнение с двоеточием
                 hours_str[ch] = trains[count].time_way[ch];
             }
             else {  // Если равны, то записываем индекс
+                if (trains[count].time_way[ch] == '.') {
+                    trains[count].time_way[ch] = ':';
+                }
                 end_ch = ch + 1;
                 break;
             }
@@ -189,7 +218,7 @@ void add_train(Train* &trains, int& count)
 
 
 // Удаление поезда по номеру в таблице
-void delete_train(Train* trains, int& count, int type)
+void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count, int type)
 {
     std::cin.ignore();
     switch (type) {  // Выбор по типу удаления
@@ -197,13 +226,36 @@ void delete_train(Train* trains, int& count, int type)
             char number[5];
             std::cout << "Введите номер: ";
             std::cin.getline(number, 5);
+            save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_number(trains, count, number);
             break;
         case 2:
             char end_station[256];
             std::cout << "Введите название станции: ";
             std::cin.getline(end_station, 256);
+            save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_end_station(trains, count, end_station);
+            break;
+        case 3:
+            char departure_time[7];
+            std::cout << "Введите время: ";
+            std::cin.getline(departure_time, 7);
+            save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
+            delete_train_by_departure_time(trains, count, departure_time);
+            break;
+        case 4:
+            char way_time[7];
+            std::cout << "Введите время: ";
+            std::cin.getline(way_time, 7);
+            save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
+            delete_train_by_way_time(trains, count, way_time);
+            break;
+        case 5:
+            int stop_count;
+            std::cout << "Введите количество остановок: ";
+            std::cin >> stop_count;
+            save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
+            delete_train_by_stop_count(trains, count, stop_count);
             break;
         case 0:  // Отмена
             break;
@@ -252,4 +304,20 @@ void sort(Train* trains, int count, int type, bool reverse, bool in_file)
     }
 
     delete[] sort_trains;  // Очищение выделенной памяти
+}
+
+
+// Функция отмены последнего действия
+void undo_action(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count) 
+{
+    if (buffer_count != 0) {
+        count = trains_buffer[buffer_count - 1].count;
+        delete[] trains;
+        trains = new Train[count];
+        for (int i = 0; i < count; i++) {
+            trains[i] = trains_buffer[buffer_count - 1].trains[i];
+        }
+        delete[] trains_buffer[buffer_count - 1].trains;
+        buffer_count--;
+    }
 }

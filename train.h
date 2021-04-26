@@ -11,6 +11,11 @@ struct Train {
     char time_way[7];
     int stop_count;
 };
+
+struct TrainBuffer {
+    int count;
+    Train* trains;
+};
 #pragma pack (pop)
 
 #endif
