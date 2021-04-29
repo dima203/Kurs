@@ -9,7 +9,7 @@ void sub_memory_train(Train*&, int&);
 void print_train(Train*, int);
 void add_train(Train*&, TrainBuffer*, int&, int&);
 void delete_train(Train*&, TrainBuffer*, int&, int&, int);
-void sort(Train*, int, int type = 1, bool reverse = false, bool file = false);
+void sort(Train*, int, int, bool, bool);
 void undo_action(Train*&, TrainBuffer*, int&, int&);
 
 #endif
