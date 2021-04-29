@@ -5,6 +5,7 @@
 
 int get_records_from_file(char[], Train*&, int&);
 int put_records_in_file(char[], Train*, int);
+void create_index_file(Train*, int);
 
 
 #endif

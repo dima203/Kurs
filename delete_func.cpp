@@ -4,6 +4,7 @@
 
 #include "delete_func.h"
 #include "train_func.h"
+#include "file.h"
 #include <iostream>
 #include <cstring>
 
@@ -31,6 +32,7 @@ void delete_train_by_number(Train* &trains, int& count, char number[5])
         }
         i++;
     }
+    create_index_file(trains, count);
 }
 
 
@@ -61,6 +63,7 @@ void delete_train_by_end_station(Train* &trains, int& count, char end_station[25
         }
         i++;
     }
+    create_index_file(trains, count);
 }
 
 
@@ -91,6 +94,7 @@ void delete_train_by_departure_time(Train* &trains, int& count, char departure_t
         }
         i++;
     }
+    create_index_file(trains, count);
 }
 
 
@@ -121,6 +125,7 @@ void delete_train_by_way_time(Train* &trains, int& count, char way_time[7])
         }
         i++;
     }
+    create_index_file(trains, count);
 }
 
 
@@ -139,4 +144,5 @@ void delete_train_by_stop_count(Train* &trains, int& count, int stop_count)
         }
         i++;
     }
+    create_index_file(trains, count);
 }

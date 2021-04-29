@@ -20,7 +20,7 @@ int main()
     int train_buffer_count = 0;  // Количество действий в буфере
     TrainBuffer* trains_buffer = new TrainBuffer[10];  // Буфер для хранения последних действий
 
-    void (*menu_func[5]) = {(void*)print_train, (void*)add_train, (void*)delete_train, (void*)sort, (void*)undo_action};
+    void (*menu_func[5]) = {(void*)print_train, (void*)add_train, (void*)delete_train, (void*)sort, (void*)undo_action};  // Массив указателей на функции
 
     int is_file_not_open = 1;  // Флаг состояния открытия файла (изначально не открыт)
     char file_name[256];  // Строка с именем файла
@@ -30,6 +30,8 @@ int main()
         std::cin.getline(file_name, 256);  // Ввод имени файла
         is_file_not_open = get_records_from_file(file_name, train_station, train_count);  // Получение записей из файла и флага состояния
     }
+
+    create_index_file(train_station, train_count);  // Создание индексных файлов
 
     bool is_working = true;  // Флаг работы программы
     while (is_working) {  // Цикл работы программы

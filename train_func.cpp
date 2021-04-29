@@ -3,10 +3,11 @@
 */
 
 #include "train_func.h"
-#include "sort_func.h"
 #include "delete_func.h"
+#include "file.h"
 #include <iostream>
 #include <cstring>
+#include <fstream>
 
 
 // Функция выделения дополнительной ячейки памяти
@@ -72,7 +73,7 @@ void save_trains_in_buffer(Train* trains, TrainBuffer* trains_buffer, int count,
 void print_train(Train* trains, int count)
 { 
     std::cout << "  Номер" << '|' << "    Конечная станция" << '|' << "      Дни следования" << '|'
-    << " Отправление" << '|' << "Время в пути" << '|' << " Кол-во остановок";
+    << " Отправление" << '|' << "Время в пути" << '|' << " Кол-во остановок" << '|' << "Время в пути в сутках";
     std::cout << std::endl;
 
     for (int i = 0; i < count; i++) {  // Цикл по всем записям
@@ -93,6 +94,29 @@ void print_train(Train* trains, int count)
         std::cout << '|';
         std::cout.width(17);
         std::cout << trains[i].stop_count;
+
+        // Расчет поля время в пути в сутках
+        char hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
+        int end_ch;
+        double time_in_hours;
+
+        for (int ch = 0; ch < strlen(trains[i].time_way); ch++) {  // Запись часов записи
+            if (trains[i].time_way[ch] != ':') {  // Сравнение с двоеточием
+                hours_str1[ch] = trains[i].time_way[ch];
+            }
+            else {  // Если равны, то записываем индекс
+                end_ch = ch + 1;
+                break;
+            }
+        }
+
+        minutes_str1[0] = trains[i].time_way[end_ch];  // Запись минут записи
+        minutes_str1[1] = trains[i].time_way[end_ch + 1];
+        time_in_hours = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени записи
+
+        std::cout << '|';
+        std::cout.width(21);
+        std::cout << time_in_hours / 24.;
         std::cout << std::endl;
     }
 }
@@ -214,6 +238,7 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
     }
 
     count++;  // Увеличение количества поездов на 1
+    create_index_file(trains, count);
 }
 
 
@@ -272,27 +297,45 @@ void sort(Train* trains, int count, int type, bool reverse, bool in_file)
     for (int i = 0; i < count; i++) {  // Переписываем все поезда из оригинального массива
         sort_trains[i] = trains[i];
     }
-
+    std::ifstream file;
+    int index[count];
     switch (type) {  // Выбор по типу сортировки
         case 1:  // Сортировка по номеру
-            number_sort(sort_trains, count, reverse);
+            file.open("index_file/number_sort.txt", std::ios::binary);
             break;
         case 2:  // Сортировка по названию станции
-            end_station_sort(sort_trains, count, reverse);
+            file.open("index_file/end_station_sort.txt", std::ios::binary);
             break;
         case 3:  // Сортировка по времени отправления
-            departure_time_sort(sort_trains, count, reverse);
+            file.open("index_file/departure_time_sort.txt", std::ios::binary);
             break;
         case 4:  // Сортировка по времени в пути
-            way_time_sort(sort_trains, count, reverse);
+            file.open("index_file/way_time_sort.txt", std::ios::binary);
             break;
         case 5:  // Сортировка по количеству остановок
-            stop_count_sort(sort_trains, count, reverse);
+            file.open("index_file/stop_count_sort.txt", std::ios::binary);
             break;
         case 0:  // Отмена
             break;
         default:
             break;
+    }
+    // Чтение индексного файла
+    file.read((char*)&count, sizeof(int));
+    for (int i = 0; i < count; i++) {
+        file.read((char*)(&index[i]), sizeof(int));
+    }
+
+    // Сортировка в срртветствии с индексами
+    int index_index = (reverse) ? count - 1 : 0;
+    for (int i = 0; i < count; i++) {
+        sort_trains[i] = trains[index[index_index]];
+        if (reverse) {
+            index_index--;
+        }
+        else {
+            index_index++;
+        }
     }
 
     print_train(sort_trains, count);  // Вывод поездов на экран
@@ -301,6 +344,7 @@ void sort(Train* trains, int count, int type, bool reverse, bool in_file)
         for (int i = 0; i < count; i++) {
             trains[i] = sort_trains[i];
         }
+        create_index_file(trains, count);
     }
 
     delete[] sort_trains;  // Очищение выделенной памяти
@@ -319,5 +363,6 @@ void undo_action(Train* &trains, TrainBuffer* trains_buffer, int& count, int& bu
         }
         delete[] trains_buffer[buffer_count - 1].trains;
         buffer_count--;
+        create_index_file(trains, count);
     }
 }

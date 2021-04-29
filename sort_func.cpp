@@ -8,45 +8,38 @@
 
 
 // Сортировка по номеру
-void number_sort(Train* trains, int count, bool reverse)
+void number_sort(Train* trains, int* index, int count)
 {
-    if (reverse) {  // Проверка по флагу наравления сортировки
-        for (int i = 0; i < count - 1; i++) {  // Цикл по записям
-            int max = std::stoi(trains[i].number);  // Максимальный номер приравнивается номеру i-й записи
-            int max_index = i;  // Индекс поезда с максимальным номером
-            for (int j = i; j < count; j++) {  // Цикл по записям (от i до конца)
-                if (max < std::stoi(trains[j].number)) {  // Сравнение максимального и текущего номера
-                    max = std::stoi(trains[j].number);
-                    max_index = j;
-                }
-            }
-            // Обмен поездов (i-го с максимальным)
-            Train temp = trains[i];
-            trains[i] = trains[max_index];
-            trains[max_index] = temp;
-        }
+    int _number[count];
+    for (int i = 0; i < count; i++) {
+        index[i] = i;
+        _number[i] = std::stoi(trains[i].number);
     }
-    else {  // Тоже самое, но с минимальным номером
-        for (int i = 0; i < count - 1; i++) {
-            int min = std::stoi(trains[i].number);
-            int min_index = i;
-            for (int j = i; j < count; j++) {
-                if (min > std::stoi(trains[j].number)) {
-                    min = std::stoi(trains[j].number);
-                    min_index = j;
-                }
+    for (int i = 0; i < count - 1; i++) {
+        int min = _number[i];
+        int min_index = i;
+        for (int j = i; j < count; j++) {
+            if (min > _number[j]) {
+                min = _number[j];
+                min_index = j;
             }
-            Train temp = trains[i];
-            trains[i] = trains[min_index];
-            trains[min_index] = temp;
         }
+        int temp = _number[i];
+        _number[i] = _number[min_index];
+        _number[min_index] = temp;
+        temp = index[i];
+        index[i] = index[min_index];
+        index[min_index] = temp;
     }
 }
 
 
 // Сортировка по названию станции
-void end_station_sort(Train* trains, int count, bool reverse)
+void end_station_sort(Train* trains, int* index, int count)
 {
+    for (int i = 0; i < count; i++) {
+        index[i] = i;
+    }
     for (int i = 0; i < count - 1; i++) {  // Цикл по записям
         for (int j = i + 1; j < count; j++) {  // Цикл по записям (от i-ой до конца)
             char temp_str1[256];  // Промежуточные строки для сравнения
@@ -59,19 +52,13 @@ void end_station_sort(Train* trains, int count, bool reverse)
                 temp_str2[ch] = tolower(trains[j].end_station[ch]);
             }
 
-            if (reverse) {  // проверк флага направления
-                if(strcmp(temp_str1, temp_str2) < 0) {  // Сравнение строк 
-                    Train temp = trains[i];  // Обмен записей
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
-            }
-            else {  // То же самое, но в обратном порядке
-                if(strcmp(temp_str1, temp_str2) > 0) {
-                    Train temp = trains[i];
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
+            if(strcmp(temp_str1, temp_str2) > 0) {
+                Train temp = trains[i];
+                trains[i] = trains[j];
+                trains[j] = temp;
+                int index_temp = index[i];
+                index[i] = index[j];
+                index[j] = index_temp;
             }
         } 
     }
@@ -79,8 +66,11 @@ void end_station_sort(Train* trains, int count, bool reverse)
 
 
 // Сортировка по времени отправления
-void departure_time_sort(Train* trains, int count, bool reverse)
+void departure_time_sort(Train* trains, int* index, int count)
 {
+    for (int i = 0; i < count; i++) {
+        index[i] = i;
+    }
     for (int i = 0; i < count - 1; i++) {  // Цикл по записям
         float time1, time2;  // Пременные времени в часах (дробные)
         int end_ch;  // Индекс конца цифр часов
@@ -102,7 +92,7 @@ void departure_time_sort(Train* trains, int count, bool reverse)
             minutes_str1[1] = trains[i].time_departure[end_ch + 1];
             time1 = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени i-ой записи
 
-            // ТО же самое для j-ой записи
+            // То же самое для j-ой записи
             for (int ch = 0; ch < strlen(trains[j].time_departure); ch++) {
                 if (trains[j].time_departure[ch] != ':') {
                     hours_str2[ch] = trains[j].time_departure[ch];
@@ -116,20 +106,14 @@ void departure_time_sort(Train* trains, int count, bool reverse)
             minutes_str2[0] = trains[j].time_departure[end_ch];
             minutes_str2[1] = trains[j].time_departure[end_ch + 1];
             time2 = float(std::stoi(hours_str2)) + float(std::stoi(minutes_str2)) / 60.0;
-            
-            if (reverse) {  // Проверка флага направления 
-                if (time1 < time2) {
-                    Train temp = trains[i];  // Обмен записей
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
-            }
-            else {  // То же самое, но в обратном порядке
-                if (time1 > time2) {
-                    Train temp = trains[i];
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
+        
+            if (time1 > time2) {
+                Train temp = trains[i];
+                trains[i] = trains[j];
+                trains[j] = temp;
+                int index_temp = index[i];
+                index[i] = index[j];
+                index[j] = index_temp;
             }
         }
     }
@@ -137,9 +121,12 @@ void departure_time_sort(Train* trains, int count, bool reverse)
 
 
 // Сортировка по времени в пути
-// ОТличие только в поле, по которому сортируем
-void way_time_sort(Train* trains, int count, bool reverse)
+// Отличие только в поле, по которому сортируем
+void way_time_sort(Train* trains, int* index, int count)
 {
+    for (int i = 0; i < count; i++) {
+        index[i] = i;
+    }
     for (int i = 0; i < count - 1; i++) {
         float time1, time2;
         int end_ch;
@@ -175,19 +162,13 @@ void way_time_sort(Train* trains, int count, bool reverse)
             minutes_str2[1] = trains[j].time_way[end_ch + 1];
             time2 = float(std::stoi(hours_str2)) + float(std::stoi(minutes_str2)) / 60.0;
             
-            if (reverse) {
-                if (time1 < time2) {
-                    Train temp = trains[i];
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
-            }
-            else {
-                if (time1 > time2) {
-                    Train temp = trains[i];
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
+            if (time1 > time2) {
+                Train temp = trains[i];
+                trains[i] = trains[j];
+                trains[j] = temp;
+                int index_temp = index[i];
+                index[i] = index[j];
+                index[j] = index_temp;
             }
         }
     }
@@ -195,23 +176,20 @@ void way_time_sort(Train* trains, int count, bool reverse)
 
 
 // Сортировка по количеству остановок
-void stop_count_sort(Train* trains, int count, bool reverse) 
+void stop_count_sort(Train* trains, int* index, int count) 
 {
+    for (int i = 0; i < count; i++) {
+        index[i] = i;
+    }
     for (int i = 0; i < count - 1; i++) {  // Цикл по записям
         for (int j = i + 1; j < count; j++) {  // Цикл по записям (от i-ой до конца)
-            if (reverse) {  // проверка флага направления
-                if(trains[i].stop_count < trains[j].stop_count) {
-                    Train temp = trains[i];  // Обмен записей
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
-            }
-            else {  // То же самое, но в обратном порядке
-                if(trains[i].stop_count > trains[j].stop_count) {
-                    Train temp = trains[i];
-                    trains[i] = trains[j];
-                    trains[j] = temp;
-                }
+            if(trains[i].stop_count > trains[j].stop_count) {
+                Train temp = trains[i];
+                trains[i] = trains[j];
+                trains[j] = temp;
+                int index_temp = index[i];
+                index[i] = index[j];
+                index[j] = index_temp;
             }
         } 
     }
