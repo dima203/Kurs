@@ -72,7 +72,7 @@ int main()
                 print_file_menu();  // Вывод меню флагов записи в файл
                 std::cout << "Выберите тип записи в файл: ";
                 std::cin >> in_file;
-                reinterpret_cast<void(*)(Train*, int, int, bool, bool)>(menu_func[3])(train_station, train_count, sort_type, reverse, in_file);
+                reinterpret_cast<void(*)(Train*, TrainBuffer*, int, int&, int, bool, bool)>(menu_func[3])(train_station, trains_buffer, train_count, buffer_count, sort_type, reverse, in_file);
                 break;
 
             case 5:  // Отмена последнего действия

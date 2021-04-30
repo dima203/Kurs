@@ -4,6 +4,7 @@
 
 #include "train_func.h"
 #include "delete_func.h"
+#include "select_func.h"
 #include "file.h"
 #include <iostream>
 #include <cstring>
@@ -122,8 +123,63 @@ void print_train(Train* trains, int count)
 }
 
 
+// Функция выборки записей по полям
+void select_trains(Train* trains, int count, int type)
+{
+    std::cin.ignore();
+    switch (type) {
+        case 1:  // Выборка по номеру
+            int down_number, up_number;
+            std::cout << "Введите диапазон значений" << std::endl;
+            std::cout << "Нижняя граница: ";
+            std::cin >> down_number;
+            std::cout << "Верхняя граница: ";
+            std::cin >> up_number;
+            select_by_number(trains, count, down_number, up_number);
+            break;
+        case 2:  // Выборка по названию конечной станции
+            char end_station[256];
+            std::cout << "Введите название конечной станции: ";
+            std::cin.getline(end_station, 256);
+            select_by_end_station(trains, count, end_station);
+            break;
+        case 3:  // Выборка по времени отправления
+            char down_departure_time[7], up_departure_time[7];
+            std::cout << "Введите диапазон значений" << std::endl;
+            std::cout << "Нижняя граница: ";
+            std::cin.getline(down_departure_time, 7);
+            std::cout << "Верхняя граница: ";
+            std::cin.getline(up_departure_time, 7);
+            select_by_departure_time(trains, count, down_departure_time, up_departure_time);
+            break;
+        case 4:  // Выборка по времени в пути
+            char down_way_time[7], up_way_time[7];
+            std::cout << "Введите диапазон значений" << std::endl;
+            std::cout << "Нижняя граница: ";
+            std::cin.getline(down_way_time, 7);
+            std::cout << "Верхняя граница: ";
+            std::cin.getline(up_way_time, 7);
+            select_by_way_time(trains, count, down_way_time, up_way_time);
+            break;
+        case 5:  // Выборка по количеству остановок
+            int down_stop_number, up_stop_number;
+            std::cout << "Введите диапазон значений" << std::endl;
+            std::cout << "Нижняя граница: ";
+            std::cin >> down_stop_number;
+            std::cout << "Верхняя граница: ";
+            std::cin >> up_stop_number;
+            select_by_stop_count(trains, count, down_stop_number, up_stop_number);
+            break;
+        case 0:  // Отмена
+            break;
+        default:
+            break;
+    }
+}
+
+
 // Добавление нового поезда
-void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
+void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count, int pos)
 {
     bool is_false = true;
     std::cin.ignore();  // Игнорирование предыдущего символа
@@ -132,13 +188,23 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 
     add_memory_train(trains, count);
 
+    if (pos == 0) {
+        pos = count;
+    }
+    else {
+        for (int i = count - 1; i >= pos; i--) {
+            trains[i + 1] = trains[i];
+        }
+    }
+
     while (is_false) {  // Проверка на правильность ввода
         std::cout << "Номер поезда:" << std::endl;
-        std::cin.getline(trains[count].number, 5);
+        std::cin.getline(trains[pos].number, 5);
 
         is_false = false;
         for (int i = 0; i < count; i++) {  // Цикл по всем записям
-            if (strcmp(trains[count].number, trains[i].number) == 0) {  // Проверка на равенство номеров
+            if (i == pos) continue;
+            if (strcmp(trains[pos].number, trains[i].number) == 0) {  // Проверка на равенство номеров
                 is_false = true;
                 std::cout << "Такой номер уже есть в базе данных!!!" << std::endl;
             }
@@ -146,34 +212,34 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
     }
 
     std::cout << "Конечная станция:" << std::endl;
-    std::cin.getline(trains[count].end_station, 256);
+    std::cin.getline(trains[pos].end_station, 256);
 
     std::cout << "Дни следования:" << std::endl;
-    std::cin.getline(trains[count].days, 64);
+    std::cin.getline(trains[pos].days, 64);
 
     is_false = true;
     while (is_false) {
         std::cout << "Время отправления:" << std::endl;
-        std::cin.getline(trains[count].time_departure, 7);
+        std::cin.getline(trains[pos].time_departure, 7);
 
         char hours_str[3] = "  ", minutes_str[3] = "  ";  // Промежуточные переменные для часов и минут
         int end_ch;
 
-        for (int ch = 0; ch < strlen(trains[count].time_departure); ch++) {  // Запись часов записи
-            if (trains[count].time_departure[ch] != ':' && trains[count].time_departure[ch] != '.') {  // Сравнение с двоеточием
-                hours_str[ch] = trains[count].time_departure[ch];
+        for (int ch = 0; ch < strlen(trains[pos].time_departure); ch++) {  // Запись часов записи
+            if (trains[pos].time_departure[ch] != ':' && trains[pos].time_departure[ch] != '.') {  // Сравнение с двоеточием
+                hours_str[ch] = trains[pos].time_departure[ch];
             }
             else {  // Если равны, то записываем индекс
-                if (trains[count].time_departure[ch] == '.') {
-                    trains[count].time_departure[ch] = ':';
+                if (trains[pos].time_departure[ch] == '.') {
+                    trains[pos].time_departure[ch] = ':';
                 }
                 end_ch = ch + 1;
                 break;
             }
         }
 
-        minutes_str[0] = trains[count].time_departure[end_ch];  // Запись минут записи
-        minutes_str[1] = trains[count].time_departure[end_ch + 1];
+        minutes_str[0] = trains[pos].time_departure[end_ch];  // Запись минут записи
+        minutes_str[1] = trains[pos].time_departure[end_ch + 1];
 
         int hours = std::stoi(hours_str);  // Перевод в целое число 
         int mins = std::stoi(minutes_str);
@@ -190,26 +256,26 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
     is_false = true;
     while (is_false) {
         std::cout << "Время в пути:" << std::endl;
-        std::cin.getline(trains[count].time_way, 7);
+        std::cin.getline(trains[pos].time_way, 7);
 
         char hours_str[3] = "  ", minutes_str[3] = "  ";  // Промежуточные переменные для часов и минут
         int end_ch;
 
-        for (int ch = 0; ch < strlen(trains[count].time_way); ch++) {  // Запись часов записи
-            if (trains[count].time_way[ch] != ':' && trains[count].time_way[ch] != '.') {  // Сравнение с двоеточием
-                hours_str[ch] = trains[count].time_way[ch];
+        for (int ch = 0; ch < strlen(trains[pos].time_way); ch++) {  // Запись часов записи
+            if (trains[pos].time_way[ch] != ':' && trains[pos].time_way[ch] != '.') {  // Сравнение с двоеточием
+                hours_str[ch] = trains[pos].time_way[ch];
             }
             else {  // Если равны, то записываем индекс
-                if (trains[count].time_way[ch] == '.') {
-                    trains[count].time_way[ch] = ':';
+                if (trains[pos].time_way[ch] == '.') {
+                    trains[pos].time_way[ch] = ':';
                 }
                 end_ch = ch + 1;
                 break;
             }
         }
 
-        minutes_str[0] = trains[count].time_way[end_ch];  // Запись минут записи
-        minutes_str[1] = trains[count].time_way[end_ch + 1];
+        minutes_str[0] = trains[pos].time_way[end_ch];  // Запись минут записи
+        minutes_str[1] = trains[pos].time_way[end_ch + 1];
 
         int hours = std::stoi(hours_str);  // Перевод в целое число 
         int mins = std::stoi(minutes_str);
@@ -226,9 +292,9 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
     is_false = true;
     while (is_false) {
         std::cout << "Количество остановок:" << std::endl;
-        std::cin >> trains[count].stop_count;
+        std::cin >> trains[pos].stop_count;
 
-        if (trains[count].stop_count <= 0) {  // Проверка условия
+        if (trains[pos].stop_count <= 0) {  // Проверка условия
             is_false = true;
             std::cout << "Количество остановок не может быть отрицательным или равным нулю!!!" << std::endl;
         }
@@ -291,7 +357,7 @@ void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
 
 
 // Сортировка поездов
-void sort(Train* trains, int count, int type, bool reverse, bool in_file)
+void sort(Train* trains, TrainBuffer* trains_buffer, int count, int& buffer_count, int type, bool reverse, bool in_file)
 {
     Train* sort_trains = new Train[count];  // Создание временного массива поездов
     for (int i = 0; i < count; i++) {  // Переписываем все поезда из оригинального массива
@@ -341,6 +407,7 @@ void sort(Train* trains, int count, int type, bool reverse, bool in_file)
     print_train(sort_trains, count);  // Вывод поездов на экран
 
     if (in_file) {
+        save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
         for (int i = 0; i < count; i++) {
             trains[i] = sort_trains[i];
         }
