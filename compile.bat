@@ -11,7 +11,7 @@ g++ -c train_func.cpp
 echo "62.5 %"
 g++ -c menu.cpp
 echo "75 %"
-g++ -c proga.cpp
+g++ -c proga_w.cpp
 echo "87.5 %"
 g++ *.o -o proga.exe
 echo "100 %"
