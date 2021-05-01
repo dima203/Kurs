@@ -6,11 +6,13 @@
 
 void add_memory_train(Train*&, int&);
 void sub_memory_train(Train*&, int&);
+
 void print_train(Train*, int);
-void select_trains(Train*, int, int);
 void add_train(Train*&, TrainBuffer*, int&, int&, int);
+void change_train(Train*&, TrainBuffer*, int&, int&);
 void delete_train(Train*&, TrainBuffer*, int&, int&, int);
-void sort(Train*, TrainBuffer*, int, int&, int, bool, bool);
+void sort_train(Train*, TrainBuffer*, int, int&, int, bool, bool);
+void select_train(Train*, int, int);
 void undo_action(Train*&, TrainBuffer*, int&, int&);
 
 #endif

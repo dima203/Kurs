@@ -8,6 +8,7 @@
 #include "train_func.h"
 #include "file.h"
 #include "menu.h"
+#include "clear.h"
 
 
 int main() 
@@ -20,11 +21,9 @@ int main()
     int train_buffer_count = 0;  // Количество действий в буфере
     TrainBuffer* trains_buffer = new TrainBuffer[10];  // Буфер для хранения последних действий
 
-    void (*menu_func[]) = {(void*)print_train, (void*)add_train, (void*)delete_train, (void*)sort, (void*)undo_action, (void*)select_trains};  // Массив указателей на функции
-
     int is_file_not_open = 1;  // Флаг состояния открытия файла (изначально не открыт)
     char file_name[256];  // Строка с именем файла
-    system("clear");
+    clear();
     while (is_file_not_open) {
         std::cout << "Введите имя файла: ";
         std::cin.getline(file_name, 256);  // Ввод имени файла
@@ -39,31 +38,35 @@ int main()
         print_menu(); // Вывод меню действий на экран
         std::cout << "Выберите действие: ";
         std::cin >> action;
-        system("clear");
+        clear();
 
         switch (action) {  // Меню выбора действия
             case 1:  // Вывод поездов на экран 
-                reinterpret_cast<void(*)(Train*, int)>(menu_func[0])(train_station, train_count);
+                print_train(train_station, train_count);
                 break;
 
             case 2:  // Добавление нового поезда
                 int pos;
-                reinterpret_cast<void(*)(Train*, int)>(menu_func[0])(train_station, train_count);
-                std::cout << "Введите позицию для добавления записи после указанной записи (0 - в конец): ";
+                print_train(train_station, train_count);
+                std::cout << "Введите позицию для добавления записи после указанной записи (-1 - в конец): ";
                 std::cin >> pos;
-                reinterpret_cast<void(*)(Train*&, TrainBuffer*, int&, int&, int)>(menu_func[1])(train_station, trains_buffer, train_count, train_buffer_count, pos);
+                add_train(train_station, trains_buffer, train_count, train_buffer_count, pos);
                 break;
 
-            case 3:  // Удаление поездов по полям
+            case 3:  // Изменение записи
+                change_train(train_station, trains_buffer, train_count, train_buffer_count);
+                break;
+
+            case 4:  // Удаление поездов по полям
                 int delete_type;  // Переменная типа удаления
-                reinterpret_cast<void(*)(Train*, int)>(menu_func[0])(train_station, train_count);
+                print_train(train_station, train_count);
                 print_delete_menu();
                 std::cout << "Введите тип удаления: ";
                 std::cin >> delete_type;
-                reinterpret_cast<void(*)(Train*&, TrainBuffer*, int&, int&, int)>(menu_func[2])(train_station, trains_buffer, train_count, train_buffer_count, delete_type);
+                delete_train(train_station, trains_buffer, train_count, train_buffer_count, delete_type);
                 break;
 
-            case 4:  // Сортировка поездов
+            case 5:  // Сортировка поездов
                 int sort_type;  // Переменная типа сортировки
                 bool reverse;  // Флаг направления сортировки (прямая / обратная)
                 bool in_file;  // Флаг записи в файл
@@ -76,20 +79,20 @@ int main()
                 print_file_menu();  // Вывод меню флагов записи в файл
                 std::cout << "Выберите тип записи в файл: ";
                 std::cin >> in_file;
-                reinterpret_cast<void(*)(Train*, TrainBuffer*, int, int&, int, bool, bool)>(menu_func[3])(train_station, trains_buffer, train_count, train_buffer_count, sort_type, reverse, in_file);
+                sort_train(train_station, trains_buffer, train_count, train_buffer_count, sort_type, reverse, in_file);
                 break;
-
-            case 5:  // Отмена последнего действия
-                reinterpret_cast<void(*)(Train*&, TrainBuffer*, int&, int&)>(menu_func[4])(train_station, trains_buffer, train_count, train_buffer_count);
-                break;
-
+            
             case 6:  // Выборка записей по полям
                 int select_type;
-                reinterpret_cast<void(*)(Train*, int)>(menu_func[0])(train_station, train_count);
+                print_train(train_station, train_count);
                 print_selection_menu();
                 std::cout << "Выберите тип выборки: ";
                 std::cin >> select_type;
-                reinterpret_cast<void(*)(Train*, int, int)>(menu_func[5])(train_station, train_count, select_type);
+                select_train(train_station, train_count, select_type);
+                break;
+
+            case 7:  // Отмена последнего действия
+                undo_action(train_station, trains_buffer, train_count, train_buffer_count);
                 break;
             
             case 0:  // Выход из программы

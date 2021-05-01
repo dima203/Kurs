@@ -1,4 +1,5 @@
 echo "Процесс компиляции..."
+g++ -c clear.cpp
 g++ -c file.cpp
 echo "12.5 %"
 g++ -c sort_func.cpp

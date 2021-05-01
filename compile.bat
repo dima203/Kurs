@@ -1,4 +1,5 @@
 echo "Процесс компиляции..."
+g++ -c clear_w.cpp
 g++ -c file.cpp
 echo "12.5 %"
 g++ -c sort_func.cpp
@@ -11,7 +12,7 @@ g++ -c train_func.cpp
 echo "62.5 %"
 g++ -c menu.cpp
 echo "75 %"
-g++ -c proga_w.cpp
+g++ -c proga.cpp
 echo "87.5 %"
 g++ *.o -o proga.exe
 echo "100 %"

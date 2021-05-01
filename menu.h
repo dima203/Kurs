@@ -8,5 +8,6 @@ void print_reverse_menu();
 void print_file_menu();
 void print_delete_menu();
 void print_selection_menu();
+void print_change_menu();
 
 #endif
