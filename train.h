@@ -12,6 +12,7 @@ struct Train {
     int stop_count;
 };
 
+// Структура буфера для отмены действий
 struct TrainBuffer {
     int count;
     Train* trains;

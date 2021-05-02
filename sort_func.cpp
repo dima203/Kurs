@@ -5,6 +5,7 @@
 #include "sort_func.h"
 #include <cstring>
 #include <iomanip>
+#include <iostream>
 
 
 // Сортировка по номеру
@@ -15,108 +16,52 @@ void number_sort(Train* trains, int* index, int count)
         index[i] = i;
         _number[i] = std::stoi(trains[i].number);
     }
-    for (int i = 0; i < count - 1; i++) {
-        int min = _number[i];
-        int min_index = i;
-        for (int j = i; j < count; j++) {
-            if (min > _number[j]) {
-                min = _number[j];
-                min_index = j;
-            }
-        }
-        int temp = _number[i];
-        _number[i] = _number[min_index];
-        _number[min_index] = temp;
-        temp = index[i];
-        index[i] = index[min_index];
-        index[min_index] = temp;
-    }
+    quick_sort(_number, 0, count - 1, index);
 }
 
 
 // Сортировка по названию станции
 void end_station_sort(Train* trains, int* index, int count)
 {
+    char _end_station[count][256];
     for (int i = 0; i < count; i++) {
+        char temp[256];
         index[i] = i;
+        strcpy(temp, trains[i].end_station);
+        for (int j = 0; j < strlen(temp); j++) {
+            temp[j] = tolower(temp[j]);
+        }
+        strcpy(_end_station[i], temp);
     }
-    for (int i = 0; i < count - 1; i++) {  // Цикл по записям
-        for (int j = i + 1; j < count; j++) {  // Цикл по записям (от i-ой до конца)
-            char temp_str1[256];  // Промежуточные строки для сравнения
-            char temp_str2[256];
-            
-            for (int ch = 0; ch < strlen(trains[i].end_station); ch++) {  // Запись i-ой j-ой строк в промежуточные с приведением символов в нижний регистр
-                temp_str1[ch] = tolower(trains[i].end_station[ch]);
-            }
-            for (int ch = 0; ch < strlen(trains[j].end_station); ch++) {
-                temp_str2[ch] = tolower(trains[j].end_station[ch]);
-            }
-
-            if(strcmp(temp_str1, temp_str2) > 0) {
-                Train temp = trains[i];
-                trains[i] = trains[j];
-                trains[j] = temp;
-                int index_temp = index[i];
-                index[i] = index[j];
-                index[j] = index_temp;
-            }
-        } 
-    }
+    quick_sort(_end_station, 0, count - 1, index);
 }
 
 
 // Сортировка по времени отправления
 void departure_time_sort(Train* trains, int* index, int count)
 {
+    double _departure_time[count];
     for (int i = 0; i < count; i++) {
+        int end_ch;
         index[i] = i;
-    }
-    for (int i = 0; i < count - 1; i++) {  // Цикл по записям
-        float time1, time2;  // Пременные времени в часах (дробные)
-        int end_ch;  // Индекс конца цифр часов
+        char hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
 
-        for (int j = i + 1; j < count; j++) {  // Цикл по записям (от i-ой до конца)
-            char hours_str2[3] = "  ", minutes_str2[3] = "  ", hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
-
-            for (int ch = 0; ch < strlen(trains[i].time_departure); ch++) {  // Запись часов i-ой записи
-                if (trains[i].time_departure[ch] != ':') {  // Сравнение с двоеточием
-                    hours_str1[ch] = trains[i].time_departure[ch];
-                }
-                else {  // Если равны, то записываем индекс
-                    end_ch = ch + 1;
-                    break;
-                }
+        for (int ch = 0; ch < strlen(trains[i].time_departure); ch++) {  // Запись часов i-ой записи
+            if (trains[i].time_departure[ch] != ':') {  // Сравнение с двоеточием
+                hours_str1[ch] = trains[i].time_departure[ch];
             }
-
-            minutes_str1[0] = trains[i].time_departure[end_ch];  // Запись минут i-ой записи
-            minutes_str1[1] = trains[i].time_departure[end_ch + 1];
-            time1 = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени i-ой записи
-
-            // То же самое для j-ой записи
-            for (int ch = 0; ch < strlen(trains[j].time_departure); ch++) {
-                if (trains[j].time_departure[ch] != ':') {
-                    hours_str2[ch] = trains[j].time_departure[ch];
-                }
-                else {
-                    end_ch = ch + 1;
-                    break;
-                }
-            }
-            
-            minutes_str2[0] = trains[j].time_departure[end_ch];
-            minutes_str2[1] = trains[j].time_departure[end_ch + 1];
-            time2 = float(std::stoi(hours_str2)) + float(std::stoi(minutes_str2)) / 60.0;
-        
-            if (time1 > time2) {
-                Train temp = trains[i];
-                trains[i] = trains[j];
-                trains[j] = temp;
-                int index_temp = index[i];
-                index[i] = index[j];
-                index[j] = index_temp;
+            else {  // Если равны, то записываем индекс
+                end_ch = ch + 1;
+                break;
             }
         }
+
+        minutes_str1[0] = trains[i].time_departure[end_ch];  // Запись минут i-ой записи
+        minutes_str1[1] = trains[i].time_departure[end_ch + 1];
+        _departure_time[i] = double(std::stoi(hours_str1)) + double(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени i-ой записи
     }
+
+    quick_sort(_departure_time, 0, count - 1, index);
 }
 
 
@@ -124,73 +69,113 @@ void departure_time_sort(Train* trains, int* index, int count)
 // Отличие только в поле, по которому сортируем
 void way_time_sort(Train* trains, int* index, int count)
 {
+    double _way_time[count];
     for (int i = 0; i < count; i++) {
-        index[i] = i;
-    }
-    for (int i = 0; i < count - 1; i++) {
-        float time1, time2;
         int end_ch;
+        index[i] = i;
+        char hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
 
-        for (int j = i + 1; j < count; j++) {
-            char hours_str1[3] = "  ", hours_str2[3] = "  ", minutes_str1[3] = "  ", minutes_str2[3] = "  ";
-
-            for (int ch = 0; ch < strlen(trains[i].time_way); ch++) {
-                if (trains[i].time_way[ch] != ':') {
-                    hours_str1[ch] = trains[i].time_way[ch];
-                }
-                else {
-                    end_ch = ch + 1;
-                    break;
-                }
+        for (int ch = 0; ch < strlen(trains[i].time_way); ch++) {  // Запись часов i-ой записи
+            if (trains[i].time_way[ch] != ':') {  // Сравнение с двоеточием
+                hours_str1[ch] = trains[i].time_way[ch];
             }
-
-            minutes_str1[0] = trains[i].time_way[end_ch];
-            minutes_str1[1] = trains[i].time_way[end_ch + 1];
-            time1 = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;
-
-            for (int ch = 0; ch < strlen(trains[j].time_way); ch++) {
-                if (trains[j].time_way[ch] != ':') {
-                    hours_str2[ch] = trains[j].time_way[ch];
-                }
-                else {
-                    end_ch = ch + 1;
-                    break;
-                }
-            }
-            
-            minutes_str2[0] = trains[j].time_way[end_ch];
-            minutes_str2[1] = trains[j].time_way[end_ch + 1];
-            time2 = float(std::stoi(hours_str2)) + float(std::stoi(minutes_str2)) / 60.0;
-            
-            if (time1 > time2) {
-                Train temp = trains[i];
-                trains[i] = trains[j];
-                trains[j] = temp;
-                int index_temp = index[i];
-                index[i] = index[j];
-                index[j] = index_temp;
+            else {  // Если равны, то записываем индекс
+                end_ch = ch + 1;
+                break;
             }
         }
+
+        minutes_str1[0] = trains[i].time_way[end_ch];  // Запись минут i-ой записи
+        minutes_str1[1] = trains[i].time_way[end_ch + 1];
+        _way_time[i] = double(std::stoi(hours_str1)) + double(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени i-ой записи
     }
+    quick_sort(_way_time, 0, count - 1, index);
 }
 
 
 // Сортировка по количеству остановок
 void stop_count_sort(Train* trains, int* index, int count) 
 {
+    int _stop_count[count];
     for (int i = 0; i < count; i++) {
         index[i] = i;
+        _stop_count[i] = trains[i].stop_count;
     }
-    for (int i = 0; i < count - 1; i++) {  // Цикл по записям
-        for (int j = i + 1; j < count; j++) {  // Цикл по записям (от i-ой до конца)
-            if(trains[i].stop_count > trains[j].stop_count) {
-                Train temp = trains[i];
-                trains[i] = trains[j];
-                trains[j] = temp;
-                int index_temp = index[i];
-                index[i] = index[j];
-                index[j] = index_temp;
+
+    quick_sort(_stop_count, 0, count - 1, index);
+}
+
+
+// Функции для быстрой сортировки
+void quick_sort(int* A, int from, int to, int* index) 
+{
+    int x, i, j, temp;
+
+    if (from >= to) return; // условие окончания рекурсии
+    i = from; // рассматриваем элементы с A[from] до A[to]
+    j = to;
+    x = A[(from + to) / 2]; // выбрали средний элемент
+
+    while ( i <= j ) {
+        while (A[i] < x) i++; // ищем пару для перестановки
+        while (A[j] > x) j--;
+            if (i <= j) {
+                temp = A[i]; A[i] = A[j]; A[j] = temp; // перестановка
+                temp = index[i]; index[i] = index[j]; index[j] = temp;
+                i++; // двигаемся дальше
+                j--;
             }
-        } 
     }
+    quick_sort(A, from, j, index); // сортируем левую часть
+    quick_sort(A, i, to, index); // сортируем правую часть
+}
+
+
+void quick_sort(double* A, int from, int to, int* index) 
+{
+    int i, j, index_temp;
+    double temp, x;
+
+    if (from >= to) return; // условие окончания рекурсии
+    i = from; // рассматриваем элементы с A[from] до A[to]
+    j = to;
+    x = A[(from + to) / 2]; // выбрали средний элемент
+
+    while ( i <= j ) {
+        while (A[i] < x) i++; // ищем пару для перестановки
+        while (A[j] > x) j--;
+            if (i <= j) {
+                temp = A[i]; A[i] = A[j]; A[j] = temp; // перестановка
+                index_temp = index[i]; index[i] = index[j]; index[j] = index_temp;
+                i++; // двигаемся дальше
+                j--;
+            }
+    }
+    quick_sort(A, from, j, index); // сортируем левую часть
+    quick_sort(A, i, to, index); // сортируем правую часть
+}
+
+
+void quick_sort(char A[][256], int from, int to, int* index) 
+{
+    int i, j, index_temp;
+    char temp[256], x[256];
+
+    if (from >= to) return; // условие окончания рекурсии
+    i = from; // рассматриваем элементы с A[from] до A[to]
+    j = to;
+
+    strcpy(x, A[(from + to) / 2]); // выбрали средний элемент
+    while ( i <= j ) {
+        while (strcmp(A[i], x) < 0) i++; // ищем пару для перестановки
+        while (strcmp(A[j], x) > 0) j--;
+            if (i <= j) {
+                strcpy(temp, A[i]); strcpy(A[i], A[j]); strcpy(A[j], temp); // перестановка
+                index_temp = index[i]; index[i] = index[j]; index[j] = index_temp;
+                i++; // двигаемся дальше
+                j--;
+            }
+    }
+    quick_sort(A, from, j, index); // сортируем левую часть
+    quick_sort(A, i, to, index); // сортируем правую часть
 }
