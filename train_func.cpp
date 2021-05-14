@@ -16,7 +16,7 @@
 // Функция выделения дополнительной ячейки памяти
 void add_memory_train(Train* &trains, int& count)
 {
-    Train* buffer_trains = new Train[count + 1];
+    Train* buffer_trains = new Train[count];
 
     for (int i = 0; i < count; i++) {
         buffer_trains[i] = trains[i];
@@ -73,7 +73,7 @@ void save_trains_in_buffer(Train* trains, TrainBuffer* trains_buffer, int count,
 
 
 // Вывод всех поездов
-void print_train(Train* trains, int count)
+void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 { 
     std::cout << "  Номер" << '|' << "    Конечная станция" << '|' << "      Дни следования" << '|'
     << " Отправление" << '|' << "Время в пути" << '|' << " Кол-во остановок" << '|' << "Время в пути в сутках";
@@ -136,7 +136,7 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
     save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
 
     while (!is_stock) {  // Проверка на правильность ввода
-        print_train(trains, count);
+        print_train(trains, trains_buffer, count, buffer_count);
         std::cout << "Введите номер поезда для изменения: ";
         std::cin.getline(_number, 5);
 
@@ -334,24 +334,54 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
 
 
 // Функция выборки записей по полям
-void select_train(Train* trains, int count, int type)
+void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
+    int type;
+    print_train(trains, trains_buffer, count, buffer_count);
+    print_selection_menu();
+    std::cout << "Выберите тип выборки: ";
+    std::cin >> type;
     std::cin.ignore();
+
+    bool is_false;
     switch (type) {
         case 1:  // Выборка по номеру
             int down_number, up_number;
             std::cout << "Введите диапазон значений" << std::endl;
-            std::cout << "Нижняя граница: ";
-            std::cin >> down_number;
-            std::cout << "Верхняя граница: ";
-            std::cin >> up_number;
-            select_by_number(trains, count, down_number, up_number);
+
+            is_false = true;
+            while (is_false) {  // Проверка на правильность ввода
+                std::cout << "Нижняя граница: ";
+                std::cin >> down_number;
+
+                is_false = false;
+                if (down_number > 9999 || down_number <= 0) {
+                    std::cout << "Номер поезда должен состоять из менее, чем 5 символов, и быть больше нуля!!!" << std::endl;
+                    is_false = true;
+                    continue;
+                }
+            }
+            
+            is_false = true;
+            while (is_false) {  // Проверка на правильность ввода
+                std::cout << "Верхняя граница: ";
+                std::cin >> up_number;
+
+                is_false = false;
+                if (up_number > 9999 || up_number <= 0) {
+                    std::cout << "Номер поезда должен состоять из менее, чем 5 символов, и быть больше нуля!!!" << std::endl;
+                    is_false = true;
+                    continue;
+                }
+            }
+            
+            select_by_number(trains, trains_buffer, count, buffer_count, down_number, up_number);
             break;
         case 2:  // Выборка по названию конечной станции
             char end_station[256];
             std::cout << "Введите название конечной станции: ";
             std::cin.getline(end_station, 256);
-            select_by_end_station(trains, count, end_station);
+            select_by_end_station(trains, trains_buffer, count, buffer_count, end_station);
             break;
         case 3:  // Выборка по времени отправления
             char down_departure_time[7], up_departure_time[7];
@@ -360,7 +390,7 @@ void select_train(Train* trains, int count, int type)
             std::cin.getline(down_departure_time, 7);
             std::cout << "Верхняя граница: ";
             std::cin.getline(up_departure_time, 7);
-            select_by_departure_time(trains, count, down_departure_time, up_departure_time);
+            select_by_departure_time(trains, trains_buffer, count, buffer_count, down_departure_time, up_departure_time);
             break;
         case 4:  // Выборка по времени в пути
             char down_way_time[7], up_way_time[7];
@@ -369,7 +399,7 @@ void select_train(Train* trains, int count, int type)
             std::cin.getline(down_way_time, 7);
             std::cout << "Верхняя граница: ";
             std::cin.getline(up_way_time, 7);
-            select_by_way_time(trains, count, down_way_time, up_way_time);
+            select_by_way_time(trains, trains_buffer, count, buffer_count, down_way_time, up_way_time);
             break;
         case 5:  // Выборка по количеству остановок
             int down_stop_number, up_stop_number;
@@ -378,7 +408,7 @@ void select_train(Train* trains, int count, int type)
             std::cin >> down_stop_number;
             std::cout << "Верхняя граница: ";
             std::cin >> up_stop_number;
-            select_by_stop_count(trains, count, down_stop_number, up_stop_number);
+            select_by_stop_count(trains, trains_buffer, count, buffer_count, down_stop_number, up_stop_number);
             break;
         case 0:  // Отмена
             break;
@@ -389,8 +419,12 @@ void select_train(Train* trains, int count, int type)
 
 
 // Добавление нового поезда
-void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count, int pos)
+void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
+    int pos;
+    print_train(trains, trains_buffer, count, buffer_count);
+    std::cout << "Введите позицию для добавления записи после указанной записи (-1 - в конец): ";
+    std::cin >> pos;
     bool is_false = true;
     std::cin.ignore();  // Игнорирование предыдущего символа
     
@@ -409,9 +443,18 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 
     while (is_false) {  // Проверка на правильность ввода
         std::cout << "Номер поезда:" << std::endl;
-        std::cin.getline(trains[pos].number, 5);
+        char input_buffer[1024];
+        std::cin.getline(input_buffer, 1024);
 
         is_false = false;
+        if (strlen(input_buffer) > 4) {
+            std::cout << "Номер поезда должен состоять из менее, чем 5 символов!!!" << std::endl;
+            is_false = true;
+            continue;
+        }
+        else {
+            strcpy(trains[pos].number, input_buffer);
+        }
         for (int i = 0; i < count; i++) {  // Цикл по всем записям
             if (i == pos) continue;
             if (strcmp(trains[pos].number, trains[i].number) == 0) {  // Проверка на равенство номеров
@@ -519,9 +562,15 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 
 
 // Удаление поезда по номеру в таблице
-void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count, int type)
+void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
+    int type;  // Переменная типа удаления
+    print_train(trains, trains_buffer, count, buffer_count);
+    print_delete_menu();
+    std::cout << "Введите тип удаления: ";
+    std::cin >> type;
     std::cin.ignore();
+
     switch (type) {  // Выбор по типу удаления
         case 1:
             char number[5];
@@ -567,8 +616,21 @@ void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
 
 
 // Сортировка поездов
-void sort_train(Train* trains, TrainBuffer* trains_buffer, int count, int& buffer_count, int type, bool reverse, bool in_file)
+void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
+    int type;  // Переменная типа сортировки
+    bool reverse;  // Флаг направления сортировки (прямая / обратная)
+    bool in_file;  // Флаг записи в файл
+    print_sort_menu();  // Вывод меню типов сортировки
+    std::cout << "Выберите тип сортировки: ";
+    std::cin >> type;
+    print_reverse_menu();  // Вывод меню флагов сортировки
+    std::cout << "Выберите порядок сортировки: ";
+    std::cin >> reverse;
+    print_file_menu();  // Вывод меню флагов записи в файл
+    std::cout << "Выберите тип записи в файл: ";
+    std::cin >> in_file;
+
     Train* sort_trains = new Train[count];  // Создание временного массива поездов
     for (int i = 0; i < count; i++) {  // Переписываем все поезда из оригинального массива
         sort_trains[i] = trains[i];
@@ -614,7 +676,7 @@ void sort_train(Train* trains, TrainBuffer* trains_buffer, int count, int& buffe
         }
     }
 
-    print_train(sort_trains, count);  // Вывод поездов на экран
+    print_train(sort_trains, trains_buffer, count, buffer_count);  // Вывод поездов на экран
 
     if (in_file) {
         save_trains_in_buffer(trains, trains_buffer, count, buffer_count);

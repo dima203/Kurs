@@ -21,6 +21,8 @@ int main()
     int train_buffer_count = 0;  // Количество действий в буфере
     TrainBuffer* trains_buffer = new TrainBuffer[10];  // Буфер для хранения последних действий
 
+    void(*menu_func_arr[])(Train*&, TrainBuffer*, int&, int&) = {print_train, add_train, change_train, delete_train, sort_train, select_train, undo_action};
+
     int is_file_not_open = 1;  // Флаг состояния открытия файла (изначально не открыт)
     char file_name[256];  // Строка с именем файла
     clear();
@@ -40,68 +42,16 @@ int main()
         std::cin >> action;
         clear();
 
-        switch (action) {  // Меню выбора действия
-            case 1:  // Вывод поездов на экран 
-                print_train(train_station, train_count);
-                break;
-
-            case 2:  // Добавление нового поезда
-                int pos;
-                print_train(train_station, train_count);
-                std::cout << "Введите позицию для добавления записи после указанной записи (-1 - в конец): ";
-                std::cin >> pos;
-                add_train(train_station, trains_buffer, train_count, train_buffer_count, pos);
-                break;
-
-            case 3:  // Изменение записи
-                change_train(train_station, trains_buffer, train_count, train_buffer_count);
-                break;
-
-            case 4:  // Удаление поездов по полям
-                int delete_type;  // Переменная типа удаления
-                print_train(train_station, train_count);
-                print_delete_menu();
-                std::cout << "Введите тип удаления: ";
-                std::cin >> delete_type;
-                delete_train(train_station, trains_buffer, train_count, train_buffer_count, delete_type);
-                break;
-
-            case 5:  // Сортировка поездов
-                int sort_type;  // Переменная типа сортировки
-                bool reverse;  // Флаг направления сортировки (прямая / обратная)
-                bool in_file;  // Флаг записи в файл
-                print_sort_menu();  // Вывод меню типов сортировки
-                std::cout << "Выберите тип сортировки: ";
-                std::cin >> sort_type;
-                print_reverse_menu();  // Вывод меню флагов сортировки
-                std::cout << "Выберите порядок сортировки: ";
-                std::cin >> reverse;
-                print_file_menu();  // Вывод меню флагов записи в файл
-                std::cout << "Выберите тип записи в файл: ";
-                std::cin >> in_file;
-                sort_train(train_station, trains_buffer, train_count, train_buffer_count, sort_type, reverse, in_file);
-                break;
-            
-            case 6:  // Выборка записей по полям
-                int select_type;
-                print_train(train_station, train_count);
-                print_selection_menu();
-                std::cout << "Выберите тип выборки: ";
-                std::cin >> select_type;
-                select_train(train_station, train_count, select_type);
-                break;
-
-            case 7:  // Отмена последнего действия
-                undo_action(train_station, trains_buffer, train_count, train_buffer_count);
-                break;
-            
-            case 0:  // Выход из программы
+        if (action >= 0 and action <= 7) {
+            if (action == 0) {
                 is_working = false;
-                break;
-
-            default:  // Если нет действия 
-                std::cout << "Такого действия нет" << std::endl;
-                break;
+            }
+            else {
+                menu_func_arr[action - 1](train_station, trains_buffer, train_count, train_buffer_count);
+            }
+        }
+        else {
+            std::cout << "Такого действия нет" << std::endl;
         }
 
         put_records_in_file(file_name, train_station, train_count);  // Запись данных в файл

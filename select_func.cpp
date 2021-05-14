@@ -10,7 +10,7 @@
 
 
 // Выборка по номеру
-void select_by_number(Train* trains, int count, int down_number, int up_number)
+void select_by_number(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, int down_number, int up_number)
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;
@@ -22,13 +22,13 @@ void select_by_number(Train* trains, int count, int down_number, int up_number)
             selection_count++;
         }
     }
-    print_train(trains_buffer, selection_count);
+    print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     delete[] trains_buffer;
 }
 
 
 // Выборка по названию конечной станции
-void select_by_end_station(Train* trains, int count, char end_station[256])
+void select_by_end_station(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, char end_station[256])
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;
@@ -53,13 +53,13 @@ void select_by_end_station(Train* trains, int count, char end_station[256])
         }
         i++;
     }
-    print_train(trains_buffer, selection_count);
+    print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     delete[] trains_buffer;
 }
 
 
 // Выборка по времени отправления
-void select_by_departure_time(Train* trains, int count, char down_departure_time[7], char up_departure_time[7])
+void select_by_departure_time(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, char down_departure_time[7], char up_departure_time[7])
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;
@@ -124,13 +124,13 @@ void select_by_departure_time(Train* trains, int count, char down_departure_time
         }
         i++;
     }
-    print_train(trains_buffer, selection_count);
+    print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     delete[] trains_buffer;
 }
 
 
 // Выборка по времени в пути
-void select_by_way_time(Train* trains, int count, char down_way_time[7], char up_way_time[7])
+void select_by_way_time(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, char down_way_time[7], char up_way_time[7])
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;
@@ -195,13 +195,13 @@ void select_by_way_time(Train* trains, int count, char down_way_time[7], char up
         }
         i++;
     }
-    print_train(trains_buffer, selection_count);
+    print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     delete[] trains_buffer;
 }
 
 
 // Выборка по количеству остановок
-void select_by_stop_count(Train* trains, int count, int down_stop_number, int up_stop_number)
+void select_by_stop_count(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, int down_stop_number, int up_stop_number)
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;
@@ -213,6 +213,6 @@ void select_by_stop_count(Train* trains, int count, int down_stop_number, int up
             selection_count++;
         }
     }
-    print_train(trains_buffer, selection_count);
+    print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     delete[] trains_buffer;
 }
