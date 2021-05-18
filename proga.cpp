@@ -3,12 +3,13 @@
     Сюда подключены остальные файлы
 */
 
-#include <iostream> 
 #include "train.h"
 #include "train_func.h"
 #include "file.h"
 #include "menu.h"
 #include "clear.h"
+
+#include <iostream> 
 
 
 int main() 
@@ -21,12 +22,13 @@ int main()
     int train_buffer_count = 0;  // Количество действий в буфере
     TrainBuffer* trains_buffer = new TrainBuffer[10];  // Буфер для хранения последних действий
 
+    // Массив указателей на функции
     void(*menu_func_arr[])(Train*&, TrainBuffer*, int&, int&) = {print_train, add_train, change_train, delete_train, sort_train, select_train, undo_action};
 
     int is_file_not_open = 1;  // Флаг состояния открытия файла (изначально не открыт)
     char file_name[256];  // Строка с именем файла
     clear();
-    while (is_file_not_open) {
+    while (is_file_not_open) {  // Цикл открытия файла
         std::cout << "Введите имя файла: ";
         std::cin.getline(file_name, 256);  // Ввод имени файла
         is_file_not_open = get_records_from_file(file_name, train_station, train_count);  // Получение записей из файла и флага состояния

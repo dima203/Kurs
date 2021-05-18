@@ -8,9 +8,11 @@
 #include "menu.h"
 #include "file.h"
 #include "clear.h"
+
 #include <iostream>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 
 
 // Функция выделения дополнительной ячейки памяти
@@ -80,23 +82,12 @@ void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& bu
     std::cout << std::endl;
 
     for (int i = 0; i < count; i++) {  // Цикл по всем записям
-        std::cout.width(7);
-        std::cout << trains[i].number;
-        std::cout << '|'; 
-        std::cout.width(20);
-        std::cout << trains[i].end_station;
-        std::cout << '|';
-        std::cout.width(20);
-        std::cout << trains[i].days;
-        std::cout << '|';
-        std::cout.width(12);
-        std::cout << trains[i].time_departure;
-        std::cout << '|';
-        std::cout.width(12);
-        std::cout << trains[i].time_way;
-        std::cout << '|';
-        std::cout.width(17);
-        std::cout << trains[i].stop_count;
+        std::cout << std::setw(7) << trains[i].number << '|'; 
+        std::cout << std::setw(20) << trains[i].end_station << '|';
+        std::cout << std::setw(20) << trains[i].days << '|';
+        std::cout << std::setw(12) << trains[i].time_departure << '|';
+        std::cout << std::setw(12) << trains[i].time_way << '|';
+        std::cout << std::setw(17) << trains[i].stop_count << '|';
 
         // Расчет поля время в пути в сутках
         char hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
@@ -117,9 +108,7 @@ void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& bu
         minutes_str1[1] = trains[i].time_way[end_ch + 1];
         time_in_hours = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени записи
 
-        std::cout << '|';
-        std::cout.width(21);
-        std::cout << time_in_hours / 24.;
+        std::cout << std::setw(21) << time_in_hours / 24.;
         std::cout << std::endl;
     }
 }
@@ -330,6 +319,7 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
         }
         clear();
     }
+    create_index_file(trains, count);
 }
 
 
