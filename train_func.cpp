@@ -16,65 +16,69 @@
 
 
 // Функция выделения дополнительной ячейки памяти
+// ======================================================================================
 void add_memory_train(Train* &trains, int& count)
 {
-    Train* buffer_trains = new Train[count];
+    Train* buffer_trains = new Train[count];  // Создание временного буфера
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {  // Перепись данных в буфер
         buffer_trains[i] = trains[i];
     }
 
-    delete[] trains;
-    trains = new Train[count + 1];
+    delete[] trains;  // Удаление указателя
+    trains = new Train[count + 1];  // Создание нового указателя с большим количеством элементов
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {  // Перепись данных из буфера в массив
         trains[i] = buffer_trains[i];
     }
-    delete[] buffer_trains;
+    delete[] buffer_trains;  // Удаление буфера
 }
 
 
 // Функция очищения ячейки памяти
+// ======================================================================================
 void sub_memory_train(Train* &trains, int& count)
 {
-    Train* buffer_trains = new Train[count - 1];
+    Train* buffer_trains = new Train[count - 1];  // Создание временного буфера
 
-    for (int i = 0; i < count - 1; i++) {
+    for (int i = 0; i < count - 1; i++) {  // Перепись данных в буфер
         buffer_trains[i] = trains[i];
     }
 
-    delete[] trains;
-    trains = new Train[count - 1];
+    delete[] trains;  // Удаление указателя
+    trains = new Train[count - 1];  // Создание нового указателя с меньшим количеством элементов
 
-    for (int i = 0; i < count - 1; i++) {
+    for (int i = 0; i < count - 1; i++) {  // Перепись данных из буфера в массив
         trains[i] = buffer_trains[i];
     }
-    delete[] buffer_trains;
+    delete[] buffer_trains;  // Удаление буфера
 }
 
 
-// Функция сохраниения состояния в буфер
+// Функция сохраниения состояния массива в буфер для отмены
+// ======================================================================================
 void save_trains_in_buffer(Train* trains, TrainBuffer* trains_buffer, int count, int& buffer_count)
 {
     if (buffer_count == 10) {
-        delete[] trains_buffer[0].trains;
-        for (int i = 0; i < buffer_count - 1; i++) {
+        delete[] trains_buffer[0].trains;  // Удаление первого состояния
+        for (int i = 0; i < buffer_count - 1; i++) {  // Сдвиг всех элементов назад на один
             trains_buffer[i] = trains_buffer[i + 1];
         }
-        buffer_count = 9;
+        buffer_count = 9;  // Изменение количества
     }
 
-    trains_buffer[buffer_count].count = count;
-    trains_buffer[buffer_count].trains = new Train[count];
-    for (int i = 0; i < count; i++) {
+    trains_buffer[buffer_count].count = count;  // Запись количества поездов
+    trains_buffer[buffer_count].trains = new Train[count];  // Запись поездов
+    for (int i = 0; i < count; i++) {  // Перепись поездов из массива в буфер для отмены
         trains_buffer[buffer_count].trains[i] = trains[i];
     }
 
-    buffer_count++;
+    buffer_count++;  // Увеличение количества состояний в буфере
 }
 
 
 // Вывод всех поездов
+// ======================================================================================
 void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 { 
     std::cout << "  Номер" << '|' << "    Конечная станция" << '|' << "      Дни следования" << '|'
@@ -115,12 +119,13 @@ void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& bu
 
 
 // Функция изменения полей записи
+// ======================================================================================
 void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
     std::cin.ignore();
-    char _number[5];
-    bool is_stock = false;
-    int _index = 0;
+    char _number[5];  // Номер записи для изменения
+    bool is_stock = false;  // Флаг наличия номера
+    int _index = 0;  // Индекс найденного элемента
 
     save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
 
@@ -324,9 +329,10 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
 
 
 // Функция выборки записей по полям
+// ======================================================================================
 void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
-    int type;
+    int type;  // Тип выборки/поиска
     print_train(trains, trains_buffer, count, buffer_count);
     print_selection_menu();
     std::cout << "Выберите тип выборки: ";
@@ -336,7 +342,7 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
     bool is_false;
     switch (type) {
         case 1:  // Выборка по номеру
-            int down_number, up_number;
+            int down_number, up_number;  // Диапазон номеров
             std::cout << "Введите диапазон значений" << std::endl;
 
             is_false = true;
@@ -374,7 +380,7 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
             select_by_end_station(trains, trains_buffer, count, buffer_count, end_station);
             break;
         case 3:  // Выборка по времени отправления
-            char down_departure_time[7], up_departure_time[7];
+            char down_departure_time[7], up_departure_time[7];  // Диапазон веремени отправления
             std::cout << "Введите диапазон значений" << std::endl;
             std::cout << "Нижняя граница: ";
             std::cin.getline(down_departure_time, 7);
@@ -383,7 +389,7 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
             select_by_departure_time(trains, trains_buffer, count, buffer_count, down_departure_time, up_departure_time);
             break;
         case 4:  // Выборка по времени в пути
-            char down_way_time[7], up_way_time[7];
+            char down_way_time[7], up_way_time[7];  // Диапазон времени в пути
             std::cout << "Введите диапазон значений" << std::endl;
             std::cout << "Нижняя граница: ";
             std::cin.getline(down_way_time, 7);
@@ -392,7 +398,7 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
             select_by_way_time(trains, trains_buffer, count, buffer_count, down_way_time, up_way_time);
             break;
         case 5:  // Выборка по количеству остановок
-            int down_stop_number, up_stop_number;
+            int down_stop_number, up_stop_number;  // Диапазон количества остановок
             std::cout << "Введите диапазон значений" << std::endl;
             std::cout << "Нижняя граница: ";
             std::cin >> down_stop_number;
@@ -409,9 +415,10 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
 
 
 // Добавление нового поезда
+// ======================================================================================
 void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
-    int pos;
+    int pos;  // Позиция для добавления
     print_train(trains, trains_buffer, count, buffer_count);
     std::cout << "Введите позицию для добавления записи после указанной записи (-1 - в конец): ";
     std::cin >> pos;
@@ -422,11 +429,11 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 
     add_memory_train(trains, count);
 
-    if (pos == -1 || pos > count) {
+    if (pos == -1 || pos > count) {  // Проверка на добавление в конец
         pos = count;
     }
     else {
-        for (int i = count - 1; i >= pos; i--) {
+        for (int i = count - 1; i >= pos; i--) {  // Сдвиг элементов на один вперед
             trains[i + 1] = trains[i];
         }
     }
@@ -552,6 +559,7 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 
 
 // Удаление поезда по номеру в таблице
+// ======================================================================================
 void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
     int type;  // Переменная типа удаления
@@ -562,35 +570,35 @@ void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
     std::cin.ignore();
 
     switch (type) {  // Выбор по типу удаления
-        case 1:
+        case 1:  // Удаление по номеру
             char number[5];
             std::cout << "Введите номер: ";
             std::cin.getline(number, 5);
             save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_number(trains, count, number);
             break;
-        case 2:
+        case 2:  // Удаление по конечной станции
             char end_station[256];
             std::cout << "Введите название станции: ";
             std::cin.getline(end_station, 256);
             save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_end_station(trains, count, end_station);
             break;
-        case 3:
+        case 3:  // Удаление по времени отправления
             char departure_time[7];
             std::cout << "Введите время: ";
             std::cin.getline(departure_time, 7);
             save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_departure_time(trains, count, departure_time);
             break;
-        case 4:
+        case 4:  // Удаление по времени в пути
             char way_time[7];
             std::cout << "Введите время: ";
             std::cin.getline(way_time, 7);
             save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_way_time(trains, count, way_time);
             break;
-        case 5:
+        case 5:  // Удаление по количеству остановок
             int stop_count;
             std::cout << "Введите количество остановок: ";
             std::cin >> stop_count;
@@ -606,6 +614,7 @@ void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
 
 
 // Сортировка поездов
+// ======================================================================================
 void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
     int type;  // Переменная типа сортировки
@@ -681,17 +690,18 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
 
 
 // Функция отмены последнего действия
+// ======================================================================================
 void undo_action(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count) 
 {
-    if (buffer_count != 0) {
-        count = trains_buffer[buffer_count - 1].count;
-        delete[] trains;
-        trains = new Train[count];
+    if (buffer_count != 0) {  // Проверка на наличие состояний для отмены
+        count = trains_buffer[buffer_count - 1].count;  // Получение количества поездов
+        delete[] trains;  // Удаление указателя
+        trains = new Train[count];  // Создание нового с новым количеством
         for (int i = 0; i < count; i++) {
-            trains[i] = trains_buffer[buffer_count - 1].trains[i];
+            trains[i] = trains_buffer[buffer_count - 1].trains[i];  // Перепись данных из буфера в массив
         }
-        delete[] trains_buffer[buffer_count - 1].trains;
-        buffer_count--;
+        delete[] trains_buffer[buffer_count - 1].trains;  // Удаление буфера
+        buffer_count--;  // Уменьшение количества сохраненных состояний
         create_index_file(trains, count);
     }
 }

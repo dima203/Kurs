@@ -2,6 +2,7 @@
 #define TRAIN_H
 
 
+// Структура "Поезд"
 #pragma pack(push, 1)
 struct Train {
     char number[5];

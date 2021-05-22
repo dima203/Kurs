@@ -10,6 +10,7 @@
 
 
 // Сортировка по номеру
+// ======================================================================================
 void number_sort(Train* trains, int* index, int count)
 {
     int _number[count];
@@ -22,6 +23,7 @@ void number_sort(Train* trains, int* index, int count)
 
 
 // Сортировка по названию станции
+// ======================================================================================
 void end_station_sort(Train* trains, int* index, int count)
 {
     char _end_station[count][256];
@@ -39,6 +41,7 @@ void end_station_sort(Train* trains, int* index, int count)
 
 
 // Сортировка по времени отправления
+// ======================================================================================
 void departure_time_sort(Train* trains, int* index, int count)
 {
     double _departure_time[count];
@@ -68,6 +71,7 @@ void departure_time_sort(Train* trains, int* index, int count)
 
 // Сортировка по времени в пути
 // Отличие только в поле, по которому сортируем
+// ======================================================================================
 void way_time_sort(Train* trains, int* index, int count)
 {
     double _way_time[count];
@@ -95,6 +99,7 @@ void way_time_sort(Train* trains, int* index, int count)
 
 
 // Сортировка по количеству остановок
+// ======================================================================================
 void stop_count_sort(Train* trains, int* index, int count) 
 {
     int _stop_count[count];
@@ -108,6 +113,7 @@ void stop_count_sort(Train* trains, int* index, int count)
 
 
 // Функции для быстрой сортировки
+// ======================================================================================
 void quick_sort(int* A, int from, int to, int* index) 
 {
     int x, i, j, temp;
@@ -132,6 +138,7 @@ void quick_sort(int* A, int from, int to, int* index)
 }
 
 
+// ======================================================================================
 void quick_sort(double* A, int from, int to, int* index) 
 {
     int i, j, index_temp;
@@ -157,6 +164,7 @@ void quick_sort(double* A, int from, int to, int* index)
 }
 
 
+// ======================================================================================
 void quick_sort(char A[][256], int from, int to, int* index) 
 {
     int i, j, index_temp;

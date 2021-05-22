@@ -13,6 +13,7 @@
 
 
 // Получение записей из файла
+// ======================================================================================
 int get_records_from_file(char file_name[], Train* &trains, int& count)
 {
     std::ifstream file(file_name, std::ios::binary);  // Создание потока чтения из файла
@@ -36,6 +37,7 @@ int get_records_from_file(char file_name[], Train* &trains, int& count)
 
 
 // Запись данных в файл
+// ======================================================================================
 int put_records_in_file(char file_name[], Train* trains, int count)
 {
     std::ofstream file(file_name, std::ios::binary);  // Создание потока записи в файл
@@ -91,6 +93,7 @@ int put_records_in_file(char file_name[], Train* trains, int count)
 
 
 // Функция создания индексных файлов
+// ======================================================================================
 void create_index_file(Train* trains, int count)
 {
     Train* trains_buffer = new Train[count];

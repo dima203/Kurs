@@ -11,38 +11,41 @@
 
 
 // Выборка по номеру
+// ======================================================================================
 void select_by_number(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, int down_number, int up_number)
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
-    int selection_count = 0;
+    int selection_count = 0;  // Количество найденных поездов
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {  // Цикл по записям
         int _number = std::stoi(trains[i].number);
-        if (_number >= down_number && _number <= up_number) {
+        if (_number >= down_number && _number <= up_number) {  // Проверка в диапазоне
             trains_buffer[selection_count] = trains[i];
             selection_count++;
         }
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
-    delete[] trains_buffer;
+    std::cout << "Количество записей найдено: " << selection_count << std::endl;
+    delete[] trains_buffer;  // Удаление буфера
 }
 
 
 // Выборка по названию конечной станции
+// ======================================================================================
 void select_by_end_station(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, char end_station[256])
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
-    int selection_count = 0;
+    int selection_count = 0;  // Количество найденных поездов
 
     int i = 0;
-    while (i < count) {
+    while (i < count) {  // Цикл по записям
         bool is_equal = true;
-        if (strlen(trains[i].end_station) < strlen(end_station)) {
+        if (strlen(trains[i].end_station) < strlen(end_station)) {  // Проверка на длину строки
             is_equal = false;
         }
         else {
             for (int j = 0; j < strlen(end_station); j++) {
-                if (trains[i].end_station[j] != end_station[j]) {
+                if (trains[i].end_station[j] != end_station[j]) {  // Сравнение символов
                     is_equal = false;
                     break;
                 }
@@ -55,15 +58,17 @@ void select_by_end_station(Train* trains, TrainBuffer* trains_buffer1, int count
         i++;
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
-    delete[] trains_buffer;
+    std::cout << "Количество записей найдено: " << selection_count << std::endl;
+    delete[] trains_buffer;  // Удаление буфера
 }
 
 
 // Выборка по времени отправления
+// ======================================================================================
 void select_by_departure_time(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, char down_departure_time[7], char up_departure_time[7])
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
-    int selection_count = 0;
+    int selection_count = 0;  // Количество найденных поездов
 
     float down_time, up_time;  // Пременные времени в часах (дробные)
     int end_ch;  // Индекс конца цифр часов
@@ -126,15 +131,17 @@ void select_by_departure_time(Train* trains, TrainBuffer* trains_buffer1, int co
         i++;
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
-    delete[] trains_buffer;
+    std::cout << "Количество записей найдено: " << selection_count << std::endl;
+    delete[] trains_buffer;  // Удаление буфера
 }
 
 
 // Выборка по времени в пути
+// ======================================================================================
 void select_by_way_time(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, char down_way_time[7], char up_way_time[7])
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
-    int selection_count = 0;
+    int selection_count = 0;  // Количество найденных поездов
 
     float down_time, up_time;  // Пременные времени в часах (дробные)
     int end_ch;  // Индекс конца цифр часов
@@ -197,23 +204,26 @@ void select_by_way_time(Train* trains, TrainBuffer* trains_buffer1, int count, i
         i++;
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
-    delete[] trains_buffer;
+    std::cout << "Количество записей найдено: " << selection_count << std::endl;
+    delete[] trains_buffer;  // Удаление буфера
 }
 
 
 // Выборка по количеству остановок
+// ======================================================================================
 void select_by_stop_count(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, int down_stop_number, int up_stop_number)
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
-    int selection_count = 0;
+    int selection_count = 0;  // Количество найденных поездов
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {  // Цикл по записям
         int _number = trains[i].stop_count;
-        if (_number >= down_stop_number && _number <= up_stop_number) {
+        if (_number >= down_stop_number && _number <= up_stop_number) {  // Проверка на диапазон
             trains_buffer[selection_count] = trains[i];
             selection_count++;
         }
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
-    delete[] trains_buffer;
+    std::cout << "Количество записей найдено: " << selection_count << std::endl;
+    delete[] trains_buffer;  // Удаление буфера
 }

@@ -10,6 +10,7 @@
 #include "clear.h"
 
 #include <iostream> 
+#include <fstream>
 
 
 int main() 
@@ -32,6 +33,29 @@ int main()
         std::cout << "Введите имя файла: ";
         std::cin.getline(file_name, 256);  // Ввод имени файла
         is_file_not_open = get_records_from_file(file_name, train_station, train_count);  // Получение записей из файла и флага состояния
+        if (is_file_not_open) {  // Если файл не открыт
+            bool is_false = true;
+            while (is_false) {
+                int create;
+                std::cout << "Создать новый файл? (0 - не создавать, 1 - создать): ";
+                std::cin >> create;
+                if (create < 0 || create > 1) {
+                    std::cout << "Неправильный ввод!!!";
+                    is_false = true;
+                }
+                else {
+                    if (create == 0) {
+                        is_false = false;
+                    }
+                    else if (create == 1) {
+                        is_false = false;
+                        std::ofstream file(file_name, std::ios::binary);
+                        file.close();
+                        is_file_not_open = get_records_from_file(file_name, train_station, train_count);
+                    }
+                }
+            }
+        }
     }
 
     create_index_file(train_station, train_count);  // Создание индексных файлов
@@ -44,12 +68,12 @@ int main()
         std::cin >> action;
         clear();
 
-        if (action >= 0 and action <= 7) {
-            if (action == 0) {
+        if (action >= 0 and action <= 7) {  // Проверка действия
+            if (action == 0) {  // Отмена
                 is_working = false;
             }
             else {
-                menu_func_arr[action - 1](train_station, trains_buffer, train_count, train_buffer_count);
+                menu_func_arr[action - 1](train_station, trains_buffer, train_count, train_buffer_count);  // Вызов функции
             }
         }
         else {
