@@ -3,7 +3,7 @@
 */
 
 #include "file.h"
-#include "train_func.h"
+#include "config_func.h"
 #include "sort_func.h"
 
 #include <fstream>

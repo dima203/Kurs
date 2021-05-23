@@ -5,6 +5,7 @@
 #include "train_func.h"
 #include "delete_func.h"
 #include "select_func.h"
+#include "config_func.h"
 #include "menu.h"
 #include "file.h"
 #include "clear.h"
@@ -13,68 +14,6 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
-
-
-// Функция выделения дополнительной ячейки памяти
-// ======================================================================================
-void add_memory_train(Train* &trains, int& count)
-{
-    Train* buffer_trains = new Train[count];  // Создание временного буфера
-
-    for (int i = 0; i < count; i++) {  // Перепись данных в буфер
-        buffer_trains[i] = trains[i];
-    }
-
-    delete[] trains;  // Удаление указателя
-    trains = new Train[count + 1];  // Создание нового указателя с большим количеством элементов
-
-    for (int i = 0; i < count; i++) {  // Перепись данных из буфера в массив
-        trains[i] = buffer_trains[i];
-    }
-    delete[] buffer_trains;  // Удаление буфера
-}
-
-
-// Функция очищения ячейки памяти
-// ======================================================================================
-void sub_memory_train(Train* &trains, int& count)
-{
-    Train* buffer_trains = new Train[count - 1];  // Создание временного буфера
-
-    for (int i = 0; i < count - 1; i++) {  // Перепись данных в буфер
-        buffer_trains[i] = trains[i];
-    }
-
-    delete[] trains;  // Удаление указателя
-    trains = new Train[count - 1];  // Создание нового указателя с меньшим количеством элементов
-
-    for (int i = 0; i < count - 1; i++) {  // Перепись данных из буфера в массив
-        trains[i] = buffer_trains[i];
-    }
-    delete[] buffer_trains;  // Удаление буфера
-}
-
-
-// Функция сохраниения состояния массива в буфер для отмены
-// ======================================================================================
-void save_trains_in_buffer(Train* trains, TrainBuffer* trains_buffer, int count, int& buffer_count)
-{
-    if (buffer_count == 10) {
-        delete[] trains_buffer[0].trains;  // Удаление первого состояния
-        for (int i = 0; i < buffer_count - 1; i++) {  // Сдвиг всех элементов назад на один
-            trains_buffer[i] = trains_buffer[i + 1];
-        }
-        buffer_count = 9;  // Изменение количества
-    }
-
-    trains_buffer[buffer_count].count = count;  // Запись количества поездов
-    trains_buffer[buffer_count].trains = new Train[count];  // Запись поездов
-    for (int i = 0; i < count; i++) {  // Перепись поездов из массива в буфер для отмены
-        trains_buffer[buffer_count].trains[i] = trains[i];
-    }
-
-    buffer_count++;  // Увеличение количества состояний в буфере
-}
 
 
 // Вывод всех поездов
@@ -122,7 +61,6 @@ void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& bu
 // ======================================================================================
 void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
-    std::cin.ignore();
     char _number[5];  // Номер записи для изменения
     bool is_stock = false;  // Флаг наличия номера
     int _index = 0;  // Индекс найденного элемента
@@ -197,19 +135,51 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
         std::cout << std::endl;
 
         print_change_menu();
-        std::cout << "Выберите действие: ";
-        std::cin >> action;
-        std::cin.ignore();
+        while (true) {
+            std::cout << "Выберите действие: ";
+            std::cin >> action;
+
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(32767, '\n');
+                std::cout << "Неправильный ввод!!!" << std::endl;
+            }
+            else {
+                std::cin.ignore(32767, '\n');
+                break;
+            }
+        }
+
+        clear();
 
         bool is_false = true;
         switch (action) {
             case 1:  // Изменение номера
                 is_false = true;
                 while (is_false) {  // Проверка на правильность ввода
-                    std::cout << "Введите новый номер поезда: ";
-                    std::cin.getline(trains[_index].number, 5);
+                    std::cout << "Номер поезда:";
+                    char input_buffer[1024];
+                    std::cin.getline(input_buffer, 1024);
 
                     is_false = false;
+                    if (strlen(input_buffer) > 4) {
+                        std::cout << "Номер поезда должен состоять из менее, чем 5 символов!!!" << std::endl;
+                        is_false = true;
+                        continue;
+                    }
+                    else {
+                        for (int i = 0; i < strlen(input_buffer); i++) {
+                            if (int(input_buffer[i]) < 48 || int(input_buffer[i]) > 57) {
+                                is_false = true;
+                                std::cout << "Номер должен состоять из цифр!!!" << std::endl;
+                                break;
+                            }
+                        }
+                        if (is_false) {
+                            continue;
+                        }
+                        strcpy(trains[_index].number, input_buffer);
+                    }
                     for (int i = 0; i < count; i++) {  // Цикл по всем записям
                         if (i == _index) continue;
                         if (strcmp(trains[_index].number, trains[i].number) == 0) {  // Проверка на равенство номеров
@@ -302,17 +272,23 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
                 }
                 break;
             case 6:  // Изменение количества остановок
-                is_false = true;
-                while (is_false) {
+                while (true) {
                     std::cout << "Введите новое количество остановок: ";
                     std::cin >> trains[_index].stop_count;
 
-                    if (trains[_index].stop_count <= 0) {  // Проверка условия
-                        is_false = true;
-                        std::cout << "Количество остановок не может быть отрицательным или равным нулю!!!" << std::endl;
+                    if (std::cin.fail()) {
+                        std::cin.clear();
+                        std::cin.ignore(32767, '\n');
+                        std::cout << "Неправильный ввод!!!" << std::endl;
                     }
                     else {
-                        is_false = false;
+                        std::cin.ignore(32767, '\n');
+                        if (trains[_index].stop_count <= 0) {  // Проверка условия
+                            std::cout << "Количество остановок не может быть отрицательным или равным нулю!!!" << std::endl;
+                        }
+                        else {
+                            break;
+                        }
                     }
                 }
                 break;
@@ -320,9 +296,9 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
                 is_working = false;
                 break;
             default:
+                std::cout << "Такого действия нет" << std::endl;
                 break;
         }
-        clear();
     }
     create_index_file(trains, count);
 }
@@ -335,39 +311,68 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
     int type;  // Тип выборки/поиска
     print_train(trains, trains_buffer, count, buffer_count);
     print_selection_menu();
-    std::cout << "Выберите тип выборки: ";
-    std::cin >> type;
-    std::cin.ignore();
+    while (true) {
+        std::cout << "Выберите тип выборки: ";
+        std::cin >> type;
 
-    bool is_false;
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
+        }
+        else {
+            std::cin.ignore(32767, '\n');
+            if (type < 0 || type > 5) {
+                std::cout << "Такого типа нет!!!" << std::endl;
+            }
+            else {
+                break;
+            }
+        }
+    }
+
     switch (type) {
         case 1:  // Выборка по номеру
             int down_number, up_number;  // Диапазон номеров
             std::cout << "Введите диапазон значений" << std::endl;
 
-            is_false = true;
-            while (is_false) {  // Проверка на правильность ввода
+            while (true) {  // Проверка на правильность ввода
                 std::cout << "Нижняя граница: ";
                 std::cin >> down_number;
 
-                is_false = false;
-                if (down_number > 9999 || down_number <= 0) {
-                    std::cout << "Номер поезда должен состоять из менее, чем 5 символов, и быть больше нуля!!!" << std::endl;
-                    is_false = true;
-                    continue;
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(32767, '\n');
+                    std::cout << "Неправильный ввод!!!" << std::endl;
+                }
+                else {
+                    std::cin.ignore(32767, '\n');
+                    if (down_number > 9999 || down_number <= 0) {
+                        std::cout << "Номер поезда должен состоять из менее, чем 5 символов, и быть больше нуля!!!" << std::endl;
+                    }
+                    else {
+                       break;
+                    }
                 }
             }
             
-            is_false = true;
-            while (is_false) {  // Проверка на правильность ввода
+           while (true) {  // Проверка на правильность ввода
                 std::cout << "Верхняя граница: ";
                 std::cin >> up_number;
 
-                is_false = false;
-                if (up_number > 9999 || up_number <= 0) {
-                    std::cout << "Номер поезда должен состоять из менее, чем 5 символов, и быть больше нуля!!!" << std::endl;
-                    is_false = true;
-                    continue;
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(32767, '\n');
+                    std::cout << "Неправильный ввод!!!" << std::endl;
+                }
+                else {
+                    std::cin.ignore(32767, '\n');
+                    if (up_number > 9999 || up_number <= 0) {
+                        std::cout << "Номер поезда должен состоять из менее, чем 5 символов, и быть больше нуля!!!" << std::endl;
+                    }
+                    else {
+                       break;
+                    }
                 }
             }
             
@@ -400,15 +405,48 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
         case 5:  // Выборка по количеству остановок
             int down_stop_number, up_stop_number;  // Диапазон количества остановок
             std::cout << "Введите диапазон значений" << std::endl;
-            std::cout << "Нижняя граница: ";
-            std::cin >> down_stop_number;
-            std::cout << "Верхняя граница: ";
-            std::cin >> up_stop_number;
+            while (true) {  // Проверка на правильность ввода
+                std::cout << "Нижняя граница: ";
+                std::cin >> down_stop_number;
+
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(32767, '\n');
+                    std::cout << "Неправильный ввод!!!" << std::endl;
+                }
+                else {
+                    std::cin.ignore(32767, '\n');
+                    if (down_stop_number <= 0) {
+                        std::cout << "Количество остановок должно быть больше нуля!!!" << std::endl;
+                    }
+                    else {
+                       break;
+                    }
+                }
+            }
+            
+           while (true) {  // Проверка на правильность ввода
+                std::cout << "Верхняя граница: ";
+                std::cin >> up_stop_number;
+
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(32767, '\n');
+                    std::cout << "Неправильный ввод!!!" << std::endl;
+                }
+                else {
+                    std::cin.ignore(32767, '\n');
+                    if (up_stop_number <= 0) {
+                        std::cout << "Количество остановок должно быть больше нуля!!!" << std::endl;
+                    }
+                    else {
+                       break;
+                    }
+                }
+            }
             select_by_stop_count(trains, trains_buffer, count, buffer_count, down_stop_number, up_stop_number);
             break;
         case 0:  // Отмена
-            break;
-        default:
             break;
     }
 }
@@ -418,28 +456,44 @@ void select_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& b
 // ======================================================================================
 void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
-    int pos;  // Позиция для добавления
     print_train(trains, trains_buffer, count, buffer_count);
-    std::cout << "Введите позицию для добавления записи после указанной записи (-1 - в конец): ";
-    std::cin >> pos;
     bool is_false = true;
-    std::cin.ignore();  // Игнорирование предыдущего символа
     
     save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
 
     add_memory_train(trains, count);
 
-    if (pos == -1 || pos > count) {  // Проверка на добавление в конец
-        pos = count;
-    }
-    else {
-        for (int i = count - 1; i >= pos; i--) {  // Сдвиг элементов на один вперед
-            trains[i + 1] = trains[i];
+    int pos;  // Позиция для добавления
+
+    while (true) {
+        std::cout << "Введите позицию для добавления записи после указанной записи (-1 - в конец): ";
+        std::cin >> pos;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
+        }
+        else {
+            std::cin.ignore(32767, '\n');
+            if (pos < -1) {
+                std::cout << "Позиция для добавления должна быть больше или равна -1!!!" << std::endl;
+            } 
+            else if (pos == -1 || pos > count) {  // Проверка на добавление в конец
+                pos = count;
+                break;
+            } 
+            else {
+                for (int i = count - 1; i >= pos; i--) {  // Сдвиг элементов на один вперед
+                    trains[i + 1] = trains[i];
+                }
+                break;
+            }
         }
     }
 
     while (is_false) {  // Проверка на правильность ввода
-        std::cout << "Номер поезда:" << std::endl;
+        std::cout << "Номер поезда: ";
         char input_buffer[1024];
         std::cin.getline(input_buffer, 1024);
 
@@ -450,6 +504,16 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
             continue;
         }
         else {
+            for (int i = 0; i < strlen(input_buffer); i++) {
+                if (int(input_buffer[i]) < 48 || int(input_buffer[i]) > 57) {
+                    is_false = true;
+                    std::cout << "Номер должен состоять из цифр!!!" << std::endl;
+                    break;
+                }
+            }
+            if (is_false) {
+                continue;
+            }
             strcpy(trains[pos].number, input_buffer);
         }
         for (int i = 0; i < count; i++) {  // Цикл по всем записям
@@ -461,15 +525,15 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
         }
     }
 
-    std::cout << "Конечная станция:" << std::endl;
+    std::cout << "Конечная станция: ";
     std::cin.getline(trains[pos].end_station, 256);
 
-    std::cout << "Дни следования:" << std::endl;
+    std::cout << "Дни следования: ";
     std::cin.getline(trains[pos].days, 64);
 
     is_false = true;
     while (is_false) {
-        std::cout << "Время отправления:" << std::endl;
+        std::cout << "Время отправления: ";
         std::cin.getline(trains[pos].time_departure, 7);
 
         char hours_str[3] = "  ", minutes_str[3] = "  ";  // Промежуточные переменные для часов и минут
@@ -505,7 +569,7 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 
     is_false = true;
     while (is_false) {
-        std::cout << "Время в пути:" << std::endl;
+        std::cout << "Время в пути: ";
         std::cin.getline(trains[pos].time_way, 7);
 
         char hours_str[3] = "  ", minutes_str[3] = "  ";  // Промежуточные переменные для часов и минут
@@ -540,16 +604,23 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
     }
 
     is_false = true;
-    while (is_false) {
-        std::cout << "Количество остановок:" << std::endl;
+    while (true) {  // Проверка на правильность ввода
+        std::cout << "Количество остановок: ";
         std::cin >> trains[pos].stop_count;
 
-        if (trains[pos].stop_count <= 0) {  // Проверка условия
-            is_false = true;
-            std::cout << "Количество остановок не может быть отрицательным или равным нулю!!!" << std::endl;
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
         }
         else {
-            is_false = false;
+            std::cin.ignore(32767, '\n');
+            if (trains[pos].stop_count <= 0) {
+                std::cout << "Количество остановок должно быть больше нуля!!!" << std::endl;
+            }
+            else {
+                break;
+            }
         }
     }
 
@@ -562,12 +633,30 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
 // ======================================================================================
 void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buffer_count)
 {
-    int type;  // Переменная типа удаления
     print_train(trains, trains_buffer, count, buffer_count);
     print_delete_menu();
-    std::cout << "Введите тип удаления: ";
-    std::cin >> type;
-    std::cin.ignore();
+
+    int type;  // Переменная типа удаления
+
+    while (true) {
+        std::cout << "Выберите тип удаления: ";
+        std::cin >> type;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
+        }
+        else {
+            std::cin.ignore(32767, '\n');
+            if (type < 0 || type > 5) {
+                std::cout << "Такого типа нет!!!" << std::endl;
+            }
+            else {
+                break;
+            }
+        }
+    }
 
     switch (type) {  // Выбор по типу удаления
         case 1:  // Удаление по номеру
@@ -600,14 +689,29 @@ void delete_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
             break;
         case 5:  // Удаление по количеству остановок
             int stop_count;
-            std::cout << "Введите количество остановок: ";
-            std::cin >> stop_count;
+            while (true) {  // Проверка на правильность ввода
+                std::cout << "Введите количество остановок: ";
+                std::cin >> stop_count;
+
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(32767, '\n');
+                    std::cout << "Неправильный ввод!!!" << std::endl;
+                }
+                else {
+                    std::cin.ignore(32767, '\n');
+                    if (stop_count <= 0) {
+                        std::cout << "Количество остановок должно быть больше нуля!!!" << std::endl;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
             save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
             delete_train_by_stop_count(trains, count, stop_count);
             break;
         case 0:  // Отмена
-            break;
-        default:
             break;
     }
 }
@@ -620,15 +724,59 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
     int type;  // Переменная типа сортировки
     bool reverse;  // Флаг направления сортировки (прямая / обратная)
     bool in_file;  // Флаг записи в файл
+
     print_sort_menu();  // Вывод меню типов сортировки
-    std::cout << "Выберите тип сортировки: ";
-    std::cin >> type;
+    while (true) {
+        std::cout << "Выберите тип сортировки: ";
+        std::cin >> type;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
+        }
+        else {
+            std::cin.ignore(32767, '\n');
+            if (type < 0 || type > 5) {
+                std::cout << "Такого типа нет!!!" << std::endl;
+            }
+            else {
+                break;
+            }
+        }
+    }
+
     print_reverse_menu();  // Вывод меню флагов сортировки
-    std::cout << "Выберите порядок сортировки: ";
-    std::cin >> reverse;
+    while (true) {
+        std::cout << "Выберите порядок сортировки: ";
+        std::cin >> reverse;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
+        }
+        else {
+            std::cin.ignore(32767, '\n');
+            break;
+        }
+    }
+    
     print_file_menu();  // Вывод меню флагов записи в файл
-    std::cout << "Выберите тип записи в файл: ";
-    std::cin >> in_file;
+    while (true) {
+        std::cout << "Выберите тип записи в файл: ";
+        std::cin >> in_file;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Неправильный ввод!!!" << std::endl;
+        }
+        else {
+            std::cin.ignore(32767, '\n');
+            break;
+        }
+    }
 
     Train* sort_trains = new Train[count];  // Создание временного массива поездов
     for (int i = 0; i < count; i++) {  // Переписываем все поезда из оригинального массива
@@ -636,6 +784,7 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
     }
     std::ifstream file;
     int index[count];
+    bool is_end = false;
     switch (type) {  // Выбор по типу сортировки
         case 1:  // Сортировка по номеру
             file.open("index_file/number_sort.txt", std::ios::binary);
@@ -653,36 +802,37 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
             file.open("index_file/stop_count_sort.txt", std::ios::binary);
             break;
         case 0:  // Отмена
+            is_end = true;
             break;
-        default:
-            break;
     }
-    // Чтение индексного файла
-    file.read((char*)&count, sizeof(int));
-    for (int i = 0; i < count; i++) {
-        file.read((char*)(&index[i]), sizeof(int));
-    }
-
-    // Сортировка в срртветствии с индексами
-    int index_index = (reverse) ? count - 1 : 0;
-    for (int i = 0; i < count; i++) {
-        sort_trains[i] = trains[index[index_index]];
-        if (reverse) {
-            index_index--;
-        }
-        else {
-            index_index++;
-        }
-    }
-
-    print_train(sort_trains, trains_buffer, count, buffer_count);  // Вывод поездов на экран
-
-    if (in_file) {
-        save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
+    if (!is_end) {
+        // Чтение индексного файла
+        file.read((char*)&count, sizeof(int));
         for (int i = 0; i < count; i++) {
-            trains[i] = sort_trains[i];
+            file.read((char*)(&index[i]), sizeof(int));
         }
-        create_index_file(trains, count);
+
+        // Сортировка в срртветствии с индексами
+        int index_index = (reverse) ? count - 1 : 0;
+        for (int i = 0; i < count; i++) {
+            sort_trains[i] = trains[index[index_index]];
+            if (reverse) {
+                index_index--;
+            }
+            else {
+                index_index++;
+            }
+        }
+
+        print_train(sort_trains, trains_buffer, count, buffer_count);  // Вывод поездов на экран
+
+        if (in_file) {
+            save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
+            for (int i = 0; i < count; i++) {
+                trains[i] = sort_trains[i];
+            }
+            create_index_file(trains, count);
+        }
     }
 
     delete[] sort_trains;  // Очищение выделенной памяти

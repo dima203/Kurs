@@ -62,10 +62,23 @@ int main()
 
     bool is_working = true;  // Флаг работы программы
     while (is_working) {  // Цикл работы программы
-        int action;  // Переменная действия
         print_menu(); // Вывод меню действий на экран
-        std::cout << "Выберите действие: ";
-        std::cin >> action;
+        int action;  // Переменная действия
+        while (true) {
+            std::cout << "Выберите действие: ";
+            std::cin >> action;
+
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(32767, '\n');
+                std::cout << "Неправильный ввод!!!" << std::endl;
+            }
+            else {
+                std::cin.ignore(32767, '\n');
+                break;
+            }
+        }
+
         clear();
 
         if (action >= 0 and action <= 7) {  // Проверка действия

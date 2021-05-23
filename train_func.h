@@ -3,10 +3,6 @@
 
 #include "train.h"
 
-
-void add_memory_train(Train*&, int&);
-void sub_memory_train(Train*&, int&);
-
 void print_train(Train*&, TrainBuffer*,int&, int&);
 void add_train(Train*&, TrainBuffer*, int&, int&);
 void change_train(Train*&, TrainBuffer*, int&, int&);

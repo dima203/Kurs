@@ -3,7 +3,7 @@
 */
 
 #include "delete_func.h"
-#include "train_func.h"
+#include "config_func.h"
 #include "file.h"
 
 #include <iostream>
