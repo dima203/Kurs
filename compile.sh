@@ -1,23 +1,23 @@
 echo -e "Процесс компиляции..."
 echo -ne "\033[32m[.................................................](  0%)\r"
-g++ -c clear.cpp
-g++ -c file.cpp
+g++ -std=c++20 -c clear.cpp
+g++ -std=c++20 -c file.cpp
 echo -ne "[#####............................................]( 11%)\r"
-g++ -c config_func.cpp
+g++ -std=c++20 -c config_func.cpp
 echo -ne "[##########|......................................]( 22%)\r"
-g++ -c sort_func.cpp
+g++ -std=c++20 -c sort_func.cpp
 echo -ne "[################.................................]( 33%)\r"
-g++ -c delete_func.cpp
+g++ -std=c++20 -c delete_func.cpp
 echo -ne "[#####################|...........................]( 44%)\r"
-g++ -c select_func.cpp
+g++ -std=c++20 -c select_func.cpp
 echo -ne "[###########################|.....................]( 56%)\r"
-g++ -c train_func.cpp
+g++ -std=c++20 -c train_func.cpp
 echo -ne "[#################################................]( 67%)\r"
-g++ -c menu.cpp
+g++ -std=c++20 -c menu.cpp
 echo -ne "[######################################...........]( 78%)\r"
-g++ -c proga.cpp
+g++ -std=c++20 -c proga.cpp
 echo -ne "[###########################################|.....]( 89%)\r"
-g++ *.o -o proga.exe
+g++ -std=c++20 *.o -o proga.exe
 echo -e "[#################################################](100%)"
 rm *.o
 echo -e "\033[0mDone"

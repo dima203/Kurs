@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <span>
 
 
 // Выборка по номеру
@@ -17,12 +18,13 @@ void select_by_number(Train* trains, TrainBuffer* trains_buffer1, int count, int
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;  // Количество найденных поездов
 
-    for (int i = 0; i < count; i++) {  // Цикл по записям
-        int _number = std::stoi(trains[i].number);
+    for (int i = 0; auto train: std::span(trains, count)) {  // Цикл по записям
+        int _number = std::stoi(train.number);
         if (_number >= down_number && _number <= up_number) {  // Проверка в диапазоне
-            trains_buffer[selection_count] = trains[i];
+            trains_buffer[selection_count] = train;
             selection_count++;
         }
+        i++;
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     std::cout << "Количество записей найдено: " << selection_count << std::endl;
@@ -216,12 +218,13 @@ void select_by_stop_count(Train* trains, TrainBuffer* trains_buffer1, int count,
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;  // Количество найденных поездов
 
-    for (int i = 0; i < count; i++) {  // Цикл по записям
-        int _number = trains[i].stop_count;
+    for (int i = 0; auto train: std::span(trains, count)) {  // Цикл по записям
+        int _number = train.stop_count;
         if (_number >= down_stop_number && _number <= up_stop_number) {  // Проверка на диапазон
-            trains_buffer[selection_count] = trains[i];
+            trains_buffer[selection_count] = train;
             selection_count++;
         }
+        i++;
     }
     print_train(trains_buffer, trains_buffer1, selection_count, buffer_count);
     std::cout << "Количество записей найдено: " << selection_count << std::endl;

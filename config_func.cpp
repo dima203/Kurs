@@ -4,6 +4,8 @@
 
 #include "config_func.h"
 
+#include <span>
+
 
 // Функция выделения дополнительной ячейки памяти
 // ======================================================================================
@@ -11,15 +13,17 @@ void add_memory_train(Train* &trains, int& count)
 {
     Train* buffer_trains = new Train[count];  // Создание временного буфера
 
-    for (int i = 0; i < count; i++) {  // Перепись данных в буфер
-        buffer_trains[i] = trains[i];
+    for (int i = 0; auto train: std::span(trains, count)) {  // Перепись данных в буфер
+        buffer_trains[i] = train;
+        i++;
     }
 
     delete[] trains;  // Удаление указателя
     trains = new Train[count + 1];  // Создание нового указателя с большим количеством элементов
 
-    for (int i = 0; i < count; i++) {  // Перепись данных из буфера в массив
-        trains[i] = buffer_trains[i];
+    for (int i = 0; auto train: std::span(buffer_trains, count)) {  // Перепись данных из буфера в массив
+        trains[i] = train;
+        i++;
     }
     delete[] buffer_trains;  // Удаление буфера
 }
@@ -59,8 +63,9 @@ void save_trains_in_buffer(Train* trains, TrainBuffer* trains_buffer, int count,
 
     trains_buffer[buffer_count].count = count;  // Запись количества поездов
     trains_buffer[buffer_count].trains = new Train[count];  // Запись поездов
-    for (int i = 0; i < count; i++) {  // Перепись поездов из массива в буфер для отмены
-        trains_buffer[buffer_count].trains[i] = trains[i];
+    for (int i = 0; auto train: std::span(trains, count)) {  // Перепись поездов из массива в буфер для отмены
+        trains_buffer[buffer_count].trains[i] = train;
+        i++;
     }
 
     buffer_count++;  // Увеличение количества состояний в буфере

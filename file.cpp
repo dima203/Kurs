@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cstring>
 #include <iomanip>
+#include <span>
 
 
 // Получение записей из файла
@@ -54,25 +55,25 @@ int put_records_in_file(char file_name[], Train* trains, int count)
     << " Отправление" << '|' << "Время в пути" << '|' << " Кол-во остановок" << '|' << "Время в пути в сутках";
     text_file << std::endl;  // Запись шапки в текстовый файл
 
-    for (int i = 0; i < count; i++) {  // Цикл по количеству записей
-        file.write((char*)(&trains[i]), sizeof(Train));  // Запись структуры в файл
+    for (auto & train: std::span(trains, count)) {  // Цикл по количеству записей
+        file.write((char*)(&train), sizeof(Train));  // Запись структуры в файл
 
         // Запись полей структуры в текстовый файл
-        text_file << std::setw(7) << trains[i].number << '|'; 
-        text_file << std::setw(20) << trains[i].end_station << '|';
-        text_file << std::setw(20) << trains[i].days << '|';
-        text_file << std::setw(12) << trains[i].time_departure << '|';
-        text_file << std::setw(12) << trains[i].time_way << '|';
-        text_file << std::setw(17) << trains[i].stop_count << '|';
+        text_file << std::setw(7) << train.number << '|'; 
+        text_file << std::setw(20) << train.end_station << '|';
+        text_file << std::setw(20) << train.days << '|';
+        text_file << std::setw(12) << train.time_departure << '|';
+        text_file << std::setw(12) << train.time_way << '|';
+        text_file << std::setw(17) << train.stop_count << '|';
 
         // Расчет поля время в пути в сутках
         char hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
         int end_ch;
         double time_in_hours;
 
-        for (int ch = 0; ch < strlen(trains[i].time_way); ch++) {  // Запись часов записи
-            if (trains[i].time_way[ch] != ':') {  // Сравнение с двоеточием
-                hours_str1[ch] = trains[i].time_way[ch];
+        for (int ch = 0; ch < strlen(train.time_way); ch++) {  // Запись часов записи
+            if (train.time_way[ch] != ':') {  // Сравнение с двоеточием
+                hours_str1[ch] = train.time_way[ch];
             }
             else {  // Если равны, то записываем индекс
                 end_ch = ch + 1;
@@ -80,8 +81,8 @@ int put_records_in_file(char file_name[], Train* trains, int count)
             }
         }
 
-        minutes_str1[0] = trains[i].time_way[end_ch];  // Запись минут записи
-        minutes_str1[1] = trains[i].time_way[end_ch + 1];
+        minutes_str1[0] = train.time_way[end_ch];  // Запись минут записи
+        minutes_str1[1] = train.time_way[end_ch + 1];
         time_in_hours = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени записи
 
         text_file << std::setw(21) << time_in_hours / 24.;

@@ -14,6 +14,7 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <span>
 
 
 // Вывод всех поездов
@@ -24,22 +25,22 @@ void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& bu
     << " Отправление" << '|' << "Время в пути" << '|' << " Кол-во остановок" << '|' << "Время в пути в сутках";
     std::cout << std::endl;
 
-    for (int i = 0; i < count; i++) {  // Цикл по всем записям
-        std::cout << std::setw(7) << trains[i].number << '|'; 
-        std::cout << std::setw(20) << trains[i].end_station << '|';
-        std::cout << std::setw(20) << trains[i].days << '|';
-        std::cout << std::setw(12) << trains[i].time_departure << '|';
-        std::cout << std::setw(12) << trains[i].time_way << '|';
-        std::cout << std::setw(17) << trains[i].stop_count << '|';
+    for (auto train: std::span(trains, count)) {  // Цикл по всем записям
+        std::cout << std::setw(7) << train.number << '|'; 
+        std::cout << std::setw(20) << train.end_station << '|';
+        std::cout << std::setw(20) << train.days << '|';
+        std::cout << std::setw(12) << train.time_departure << '|';
+        std::cout << std::setw(12) << train.time_way << '|';
+        std::cout << std::setw(17) << train.stop_count << '|';
 
         // Расчет поля время в пути в сутках
         char hours_str1[3] = "  ", minutes_str1[3] = "  ";  // Промежуточные переменные для часов и минут
         int end_ch;
         double time_in_hours;
 
-        for (int ch = 0; ch < strlen(trains[i].time_way); ch++) {  // Запись часов записи
-            if (trains[i].time_way[ch] != ':') {  // Сравнение с двоеточием
-                hours_str1[ch] = trains[i].time_way[ch];
+        for (int ch = 0; ch < strlen(train.time_way); ch++) {  // Запись часов записи
+            if (train.time_way[ch] != ':') {  // Сравнение с двоеточием
+                hours_str1[ch] = train.time_way[ch];
             }
             else {  // Если равны, то записываем индекс
                 end_ch = ch + 1;
@@ -47,8 +48,8 @@ void print_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& bu
             }
         }
 
-        minutes_str1[0] = trains[i].time_way[end_ch];  // Запись минут записи
-        minutes_str1[1] = trains[i].time_way[end_ch + 1];
+        minutes_str1[0] = train.time_way[end_ch];  // Запись минут записи
+        minutes_str1[1] = train.time_way[end_ch + 1];
         time_in_hours = float(std::stoi(hours_str1)) + float(std::stoi(minutes_str1)) / 60.0;  // Подсчёт времени записи
 
         std::cout << std::setw(21) << time_in_hours / 24.;
@@ -72,12 +73,13 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
         std::cout << "Введите номер поезда для изменения: ";
         std::cin.getline(_number, 5);
 
-        for (int i = 0; i < count; i++) {  // Цикл по всем записям
-            if (strcmp(_number, trains[i].number) == 0) {  // Проверка на равенство номеров
+        for (int i = 0; auto train: std::span(trains, count)) {  // Цикл по всем записям
+            if (strcmp(_number, train.number) == 0) {  // Проверка на равенство номеров
                 is_stock = true;
                 _index = i;
                 break;
             }
+            i++;
         }
         clear();
         if (!is_stock) {
@@ -180,12 +182,13 @@ void change_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& b
                         }
                         strcpy(trains[_index].number, input_buffer);
                     }
-                    for (int i = 0; i < count; i++) {  // Цикл по всем записям
+                    for (int i = 0; auto train: std::span(trains, count)) {  // Цикл по всем записям
                         if (i == _index) continue;
-                        if (strcmp(trains[_index].number, trains[i].number) == 0) {  // Проверка на равенство номеров
+                        if (strcmp(trains[_index].number, train.number) == 0) {  // Проверка на равенство номеров
                             is_false = true;
                             std::cout << "Такой номер уже есть в базе данных!!!" << std::endl;
                         }
+                        i++;
                     }
                 }
                 break;
@@ -516,12 +519,13 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
             }
             strcpy(trains[pos].number, input_buffer);
         }
-        for (int i = 0; i < count; i++) {  // Цикл по всем записям
+        for (int i = 0; auto train: std::span(trains, count)) {  // Цикл по всем записям
             if (i == pos) continue;
-            if (strcmp(trains[pos].number, trains[i].number) == 0) {  // Проверка на равенство номеров
+            if (strcmp(trains[pos].number, train.number) == 0) {  // Проверка на равенство номеров
                 is_false = true;
                 std::cout << "Такой номер уже есть в базе данных!!!" << std::endl;
             }
+            i++;
         }
     }
 
@@ -779,8 +783,9 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
     }
 
     Train* sort_trains = new Train[count];  // Создание временного массива поездов
-    for (int i = 0; i < count; i++) {  // Переписываем все поезда из оригинального массива
-        sort_trains[i] = trains[i];
+    for (int i = 0; auto train: std::span(trains, count)) {  // Переписываем все поезда из оригинального массива
+        sort_trains[i] = train;
+        i++;
     }
     std::ifstream file;
     int index[count];
@@ -808,8 +813,8 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
     if (!is_end) {
         // Чтение индексного файла
         file.read((char*)&count, sizeof(int));
-        for (int i = 0; i < count; i++) {
-            file.read((char*)(&index[i]), sizeof(int));
+        for (auto & i: std::span(index, count)) {
+            file.read((char*)(&i), sizeof(int));
         }
 
         // Сортировка в срртветствии с индексами
@@ -828,8 +833,9 @@ void sort_train(Train*& trains, TrainBuffer* trains_buffer, int& count, int& buf
 
         if (in_file) {
             save_trains_in_buffer(trains, trains_buffer, count, buffer_count);
-            for (int i = 0; i < count; i++) {
-                trains[i] = sort_trains[i];
+            for (int i = 0; auto train: std::span(sort_trains, count)) {
+                trains[i] = train;
+                i++;
             }
             create_index_file(trains, count);
         }
@@ -847,8 +853,9 @@ void undo_action(Train* &trains, TrainBuffer* trains_buffer, int& count, int& bu
         count = trains_buffer[buffer_count - 1].count;  // Получение количества поездов
         delete[] trains;  // Удаление указателя
         trains = new Train[count];  // Создание нового с новым количеством
-        for (int i = 0; i < count; i++) {
-            trains[i] = trains_buffer[buffer_count - 1].trains[i];  // Перепись данных из буфера в массив
+        for (int i = 0; auto train: std::span(trains_buffer[buffer_count - 1].trains, count)) {
+            trains[i] = train;  // Перепись данных из буфера в массив
+            i++;
         }
         delete[] trains_buffer[buffer_count - 1].trains;  // Удаление буфера
         buffer_count--;  // Уменьшение количества сохраненных состояний
