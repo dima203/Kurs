@@ -44,7 +44,7 @@ int put_records_in_file(char file_name[], Train* trains, int count)
     std::ofstream file(file_name, std::ios::binary);  // Создание потока записи в файл
     std::ofstream text_file("output_file.txt");
 
-    if (!file) {
+    if (!file || !text_file) {
         std::cout << "Файл не открыт!!!" << std::endl;
         return 1;
     }

@@ -15,8 +15,6 @@
 
 int main() 
 { 
-    setlocale(0, "");
-
     int train_count = 0;  // Количество поездов на данный момент
     Train* train_station = new Train[train_count];  // Массив структур
 
@@ -68,7 +66,7 @@ int main()
             std::cout << "Выберите действие: ";
             std::cin >> action;
 
-            if (std::cin.fail()) {
+            if (std::cin.fail()) {  // Если ввод был неудачным
                 std::cin.clear();
                 std::cin.ignore(32767, '\n');
                 std::cout << "Неправильный ввод!!!" << std::endl;
@@ -97,5 +95,10 @@ int main()
     }
 
     delete[] train_station;  // Очистка пямяти
+
+    for (auto buffer: std::span(trains_buffer, train_buffer_count)) {  // Очистка буфера отмены
+        delete[] buffer.trains;
+    }
+    delete[] trains_buffer;
     return 0; 
 }
