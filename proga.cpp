@@ -11,6 +11,7 @@
 
 #include <iostream> 
 #include <fstream>
+#include <span>
 
 
 int main() 
@@ -44,6 +45,7 @@ int main()
                 else {
                     if (create == 0) {
                         is_false = false;
+                        std::cin.ignore(32767, '\n');
                     }
                     else if (create == 1) {
                         is_false = false;

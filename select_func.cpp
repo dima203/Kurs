@@ -213,14 +213,14 @@ void select_by_way_time(Train* trains, TrainBuffer* trains_buffer1, int count, i
 
 // Выборка по количеству остановок
 // ======================================================================================
-void select_by_stop_count(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, int down_stop_number, int up_stop_number)
+void select_by_stop_count(Train* trains, TrainBuffer* trains_buffer1, int count, int buffer_count, int down_stop_count, int up_stop_count)
 {
     Train* trains_buffer = new Train[count];  // Буфер поездов для выборки
     int selection_count = 0;  // Количество найденных поездов
 
     for (int i = 0; auto train: std::span(trains, count)) {  // Цикл по записям
         int _number = train.stop_count;
-        if (_number >= down_stop_number && _number <= up_stop_number) {  // Проверка на диапазон
+        if (_number >= down_stop_count && _number <= up_stop_count) {  // Проверка на диапазон
             trains_buffer[selection_count] = train;
             selection_count++;
         }

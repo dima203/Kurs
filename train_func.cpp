@@ -165,7 +165,7 @@ void add_train(Train* &trains, TrainBuffer* trains_buffer, int& count, int& buff
         int hours = std::stoi(hours_str);  // Перевод в целое число 
         int mins = std::stoi(minutes_str);
 
-        if (hours < 0 || mins < 0 || mins >= 60) {  // Проверка условий
+        if (hours < 0 || hours >= 24 || mins < 0 || mins >= 60) {  // Проверка условий
             std::cout << "Неправильно задано время!!!" << std::endl;
             is_false = true;
         }
